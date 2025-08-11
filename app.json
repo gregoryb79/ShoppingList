@@ -37,6 +37,9 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "API_URL": "https://shoppinglistserver-3hwe.onrender.com"
     }
   }
 }
