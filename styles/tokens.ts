@@ -53,3 +53,7 @@ export const borderRadius = {
   base: 10,
   lg: 15,
 };
+
+export const iconSizes = {
+  md: 30,
+};

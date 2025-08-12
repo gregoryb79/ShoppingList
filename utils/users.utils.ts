@@ -1,4 +1,5 @@
-import Constants from 'expo-constants';
+import { apiClient, clearToken, getToken, setToken } from "./apiClient";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export type User = {
   _id: string;
@@ -8,21 +9,31 @@ export type User = {
   password?: string;
 };
 
-let API_URL: string;
-if (Constants.expoConfig && Constants.expoConfig.extra && Constants.expoConfig.extra.API_URL) {
-  API_URL = Constants.expoConfig.extra.API_URL;
-} else {
-  throw new Error('API_URL is not defined in expo config');
+export async function initUser(): Promise<User> {
+    const user = await AsyncStorage.getItem('currentUser');
+    if (user) {
+        const parsedUser = JSON.parse(user) as User;
+        console.log('Existing user found:', parsedUser);
+        return parsedUser;
+    }
+    console.log('No existing user found, creating a default user.');
+    try{
+        const res = await apiClient.put('/users/DefaultUser');
+        const newUser = res.data as User;
+        console.log('Created new user:', newUser);
+        return newUser;
+    } catch (error) {
+        console.error('Error initializing user:', error);
+        throw error;
+    }
 }
 
+
 export async function fetchUsers(): Promise<User[]> {
-    console.log('Fetching users from:', API_URL);
+    console.log('Fetching users.');
     try {
-        const response = await fetch(`${API_URL}/users`);
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        const result = await response.json();
+        const response = await apiClient.get(`/users`);        
+        const result = await response.data;
         console.log('Fetched users:', result);
         return result;
     } catch (error) {
@@ -30,3 +41,5 @@ export async function fetchUsers(): Promise<User[]> {
         throw error;
     }
 }
+
+

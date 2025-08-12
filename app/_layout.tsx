@@ -1,27 +1,33 @@
 import { router, Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
+import { colors, typography, spacing, borderRadius } from '../styles/tokens';
 
 import { ActivityIndicator, View, Text } from 'react-native';
+import SettingsButton from '@/components/SettingsButton';
+import HamburgerButton from '@/components/HamburgerButton';
+import { initUser } from '@/utils/users.utils';
+import { initiateListsStorage } from '@/utils/lists.utils';
 
 
 
 export default function RootLayout() {
-    // const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
     
-    // useEffect(() => {
-    //     async function initializeApp (){
-    //         setLoading(true);
-    //         try {
-    //             await setupData();
-    //         } catch (error) {
-    //             console.error('Error during app initialization:', error);
-    //         } finally {
-    //             setLoading(false);
-    //         }
-    //     };
+    useEffect(() => {
+        async function initializeApp (){
+            setLoading(true);
+            try {
+                const user = await initUser();                
+                await initiateListsStorage();
+            } catch (error) {
+                console.error('Error during app initialization:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
         
-    //     initializeApp();
-    // }, []);
+        initializeApp();
+    }, []);
    
 
     // if (loading) {
@@ -34,8 +40,12 @@ export default function RootLayout() {
     // }
 
     return (
-        <Stack>
-            <Stack.Screen name="index" />
+        <Stack screenOptions= {headerOptions}>
+            <Stack.Screen name="index" options={{ 
+                headerLeft: () => <HamburgerButton onPress={() => {}} style={{marginRight: spacing.md}}/>,
+                title: 'Shopping List',
+                headerRight: () => <SettingsButton onPress={() => {}}/>
+            }}/>
             {/* <Stack.Screen name="index" options={{ title: 'TravelExpences ', headerRight: () => <SettingsButton onPress={() => {router.push('/settings')}}/>}} />
             <Stack.Screen name="expenses" options={{ title: 'Expenses', headerRight: () => <SettingsButton onPress={() => {router.push('/settings')}}/> }} />                        
             <Stack.Screen name="settings" options={{ title: 'Settings'}} /> 
@@ -43,13 +53,13 @@ export default function RootLayout() {
         </Stack>
     );
 }
-//  const headerOptions = {
-//     headerStyle: {
-//         backgroundColor: colors.textWhite, 
-//     },
-//     headerTintColor: colors.primaryBlue, // White text
-//     headerTitleStyle: {
-//         fontWeight: typography.weights.bold,
-//         fontSize: typography.xxl,
-//     },
-// };
+ const headerOptions = {
+    headerStyle: {
+        backgroundColor: colors.textWhite, 
+    },
+    headerTintColor: colors.primaryBlue, // White text
+    headerTitleStyle: {
+        fontWeight: typography.weights.bold,
+        fontSize: typography.xxl,
+    },
+};
