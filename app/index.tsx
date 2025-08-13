@@ -1,22 +1,23 @@
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, Modal } from 'react-native';
-import { Link, router, useFocusEffect } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import React, { useCallback, useEffect, useState } from 'react';
+import AddButton from '@/components/AddButton';
+import Loader from '@/components/Loader';
+import { styles } from '@/styles/styles';
+import { initiateListsStorage, ShoppingList } from '@/utils/lists.utils';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { fetchUsers } from '@/utils/users.utils';
-import { type User } from '../utils/users.utils';
 
 
 export default function HomeScreen() {  
 
-    const [users, setUsers] = useState<User[]>([]);
+    // const [users, setUsers] = useState<User[]>([]);
+    const [lists, setLists] = useState<ShoppingList[]>([]);
     const [loading, setLoading] = useState(true);
 
      useEffect(() => {
         async function fetchData() {                  
             try {
-                const data = await fetchUsers();
-                setUsers(data);
+                const data = await initiateListsStorage();
+                setLists(data);
             } catch (error) {
                 // handle error
             } finally {
@@ -27,14 +28,19 @@ export default function HomeScreen() {
     }, []);
 
     return (
-        <SafeAreaView edges={['bottom']}>   
-            <View>
-                {users?.map(user => (
-                    <View key={user._id}>
-                        <Text>{user.name}</Text>
-                    </View>
-                ))}
-            </View>
+        <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
+          <View style={styles.mainScreenContainer}>
+            {loading && <Loader />}
+            <ScrollView>
+              {lists?.map(list => (
+                <TouchableOpacity key={list._id} style={styles.shoppingListsRow}>
+                  <Text style={styles.text_md}>{list.name}</Text>
+                  <Text style={styles.text_md}>{list.items.length === 0 ? 'Empty' : `${list.items.length} items`}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <AddButton />
+          </View>
         </SafeAreaView>
     );
 }

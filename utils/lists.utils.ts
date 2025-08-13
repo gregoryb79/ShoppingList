@@ -23,11 +23,17 @@ export type ShoppingList = {
   updatedAt?: string;
 };
 
-export async function initiateListsStorage() {
+export async function initiateListsStorage(): Promise<ShoppingList[]> {
+    // await new Promise(resolve => setTimeout(resolve, 3000));//to test loader
+
     const storedLists = await AsyncStorage.getItem("shoppingLists");
-    if (!storedLists) {
-        await AsyncStorage.setItem("shoppingLists", JSON.stringify([]));
+    if (!storedLists || storedLists === "[]") {
+        await AsyncStorage.setItem("shoppingLists", JSON.stringify(listOfShoppingLists));
+        console.log("No shopping lists found, initializing with default list.", listOfShoppingLists);
+        return listOfShoppingLists;
     }
+    console.log("Shopping lists found in storage, returning existing lists.", JSON.parse(storedLists));
+    return JSON.parse(storedLists);
 }
 
 const shoppingList: ShoppingList = {

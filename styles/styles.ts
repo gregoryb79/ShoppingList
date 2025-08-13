@@ -30,4 +30,23 @@ export const styles = StyleSheet.create({
     padding_sm: {
         padding: spacing.sm,
     },
+    mainScreenContainer: {
+        flex: 1,
+        backgroundColor: colors.background,
+        padding: spacing.md,
+        // borderWidth: 2,
+        // borderColor: 'red',
+    },
+    shoppingListsRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: spacing.sm,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.border,        
+    },
+    addNewListButton: {        
+        flexDirection: 'row',
+        justifyContent: 'center',        
+    },
 });
