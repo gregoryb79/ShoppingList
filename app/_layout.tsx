@@ -5,8 +5,8 @@ import { colors, typography, spacing, borderRadius } from '../styles/tokens';
 import { ActivityIndicator, View, Text } from 'react-native';
 import SettingsButton from '@/components/SettingsButton';
 import HamburgerButton from '@/components/HamburgerButton';
-import { initUser } from '@/utils/users.utils';
-import { initiateListsStorage } from '@/utils/lists.utils';
+import { getUser } from '@/utils/users.utils';
+
 
 
 
@@ -17,8 +17,8 @@ export default function RootLayout() {
         async function initializeApp (){
             setLoading(true);
             try {
-                const user = await initUser();                
-                await initiateListsStorage();
+                const user = await getUser();                
+                // await initiateListsStorage();
             } catch (error) {
                 console.error('Error during app initialization:', error);
             } finally {

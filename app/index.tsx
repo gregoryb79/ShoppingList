@@ -1,7 +1,7 @@
 import AddButton from '@/components/AddButton';
 import Loader from '@/components/Loader';
 import { styles } from '@/styles/styles';
-import { initiateListsStorage, ShoppingList } from '@/utils/lists.utils';
+import { getLists, ShoppingList } from '@/utils/lists.utils';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -16,10 +16,10 @@ export default function HomeScreen() {
      useEffect(() => {
         async function fetchData() {                  
             try {
-                const data = await initiateListsStorage();
+                const data = await getLists();
                 setLists(data);
             } catch (error) {
-                // handle error
+               console.error('Error initializing data:', error);
             } finally {
                 setLoading(false);
             }
@@ -32,12 +32,15 @@ export default function HomeScreen() {
           <View style={styles.mainScreenContainer}>
             {loading && <Loader />}
             <ScrollView style={styles.shoppingListsContainer}>
-              {lists?.map(list => (
-                <TouchableOpacity key={list._id} style={styles.shoppingListsRow}>
-                  <Text style={styles.text_md}>{list.name}</Text>
-                  <Text style={styles.text_md}>{list.items.length === 0 ? 'Empty' : `${list.items.length} items`}</Text>
-                </TouchableOpacity>
-              ))}
+              { !lists || lists.length === 0 ? (
+                <Text style={styles.h3}>Ooops something went wrong, no shopping list found...</Text>
+              ) : (
+                lists?.map(list => (
+                    <TouchableOpacity key={list._id} style={styles.shoppingListsRow}>
+                    <Text style={styles.text_md}>{list.name}</Text>
+                    <Text style={styles.text_md}>{list.items.length === 0 ? 'Empty' : `${list.items.length} items`}</Text>
+                    </TouchableOpacity>
+              )))}
             </ScrollView>
             <View style={styles.addButtonContainer}>
               <AddButton />

@@ -17,7 +17,7 @@ export const styles = StyleSheet.create({
     text_md: {
         fontSize: typography.md,
         color: colors.textPrimary,
-    },
+    },    
     text_center: {
         textAlign: 'center',
     },
@@ -51,9 +51,7 @@ export const styles = StyleSheet.create({
     },
     shoppingListsContainer: {
         flex: 1,
-        flexDirection: 'column',
-        // borderWidth: 2,
-        // borderColor: 'red',
+        flexDirection: 'column',        
         marginBottom: spacing.sm,
     },
 });
