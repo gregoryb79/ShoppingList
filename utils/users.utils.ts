@@ -10,6 +10,7 @@ export type User = {
 };
 
 export async function initUser(): Promise<User> {
+    // await AsyncStorage.clear();
     const user = await AsyncStorage.getItem('currentUser');
     if (user) {
         const parsedUser = JSON.parse(user) as User;
@@ -21,6 +22,7 @@ export async function initUser(): Promise<User> {
         const res = await apiClient.put('/users/DefaultUser');
         const newUser = res.data as User;
         console.log('Created new user:', newUser);
+        await AsyncStorage.setItem('currentUser', JSON.stringify(newUser));
         return newUser;
     } catch (error) {
         console.error('Error initializing user:', error);
@@ -34,7 +36,7 @@ export async function fetchUsers(): Promise<User[]> {
     try {
         const response = await apiClient.get(`/users`);        
         const result = await response.data;
-        console.log('Fetched users:', result);
+        console.log('Fetched users:', result.length);
         return result;
     } catch (error) {
         console.error('Error fetching users:', error);
