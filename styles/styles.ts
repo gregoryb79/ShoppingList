@@ -45,8 +45,15 @@ export const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: colors.border,        
     },
-    addNewListButton: {        
+    addButtonContainer: {        
         flexDirection: 'row',
         justifyContent: 'center',        
+    },
+    shoppingListsContainer: {
+        flex: 1,
+        flexDirection: 'column',
+        // borderWidth: 2,
+        // borderColor: 'red',
+        marginBottom: spacing.sm,
     },
 });

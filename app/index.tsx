@@ -31,7 +31,7 @@ export default function HomeScreen() {
         <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
           <View style={styles.mainScreenContainer}>
             {loading && <Loader />}
-            <ScrollView>
+            <ScrollView style={styles.shoppingListsContainer}>
               {lists?.map(list => (
                 <TouchableOpacity key={list._id} style={styles.shoppingListsRow}>
                   <Text style={styles.text_md}>{list.name}</Text>
@@ -39,7 +39,9 @@ export default function HomeScreen() {
                 </TouchableOpacity>
               ))}
             </ScrollView>
-            <AddButton />
+            <View style={styles.addButtonContainer}>
+              <AddButton />
+            </View>
           </View>
         </SafeAreaView>
     );
