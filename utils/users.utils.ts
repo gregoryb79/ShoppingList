@@ -54,7 +54,7 @@ export async function getFamilyAccount(): Promise<FamilyAccount> {
     }
     console.log('No existing familyAccount found, creating a default family account.');
     try{
-        const res = await apiClient.put('/users/FA/DefaultAccount');
+        const res = await apiClient.post('/users/FA/DefaultAccount');
         const newAccount = res.data.familyAccount as FamilyAccount;               
         console.log('Created new account:', newAccount);
         await saveFamilyAccount(newAccount);
@@ -70,6 +70,15 @@ export async function saveFamilyAccount(account: FamilyAccount): Promise<void> {
         console.log('Family account saved to storage.');
     } catch (error) {
         console.error('Error saving family account:', error);
+    }
+}
+
+export async function saveUser(currentUser: User): Promise<void> {
+    try {
+        await AsyncStorage.setItem('currentUser', JSON.stringify(currentUser));
+        console.log('User saved to storage.');                
+    } catch (error) {
+        console.error('Error saving user:', error);
     }
 }
 

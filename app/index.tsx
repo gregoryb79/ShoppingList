@@ -1,9 +1,10 @@
 import AddButton from '@/components/AddButton';
 import Loader from '@/components/Loader';
+import ShoppingListModal from '@/components/ShoppingListModal';
 import { styles } from '@/styles/styles';
 import { getLists, ShoppingList } from '@/utils/lists.utils';
 import React, { useEffect, useState } from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Button, Modal, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 
@@ -12,6 +13,7 @@ export default function HomeScreen() {
     // const [users, setUsers] = useState<User[]>([]);
     const [lists, setLists] = useState<ShoppingList[]>([]);
     const [loading, setLoading] = useState(true);
+    const [listModalVisible, setListModalVisible] = useState(false);
 
      useEffect(() => {
         async function fetchData() {                  
@@ -25,7 +27,7 @@ export default function HomeScreen() {
             }
         };
         fetchData();
-    }, []);
+    }, [listModalVisible]);
 
     return (
         <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
@@ -37,13 +39,14 @@ export default function HomeScreen() {
               ) : (
                 lists?.map(list => (
                     <TouchableOpacity key={list._id} style={styles.shoppingListsRow}>
-                    <Text style={styles.text_md}>{list.name}</Text>
-                    <Text style={styles.text_md}>{list.items.length === 0 ? 'Empty' : `${list.items.length} items`}</Text>
+                        <Text style={styles.text_md}>{list.name}</Text>
+                        <Text style={styles.text_md}>{list.items.length === 0 ? 'Empty' : `${list.items.length} items`}</Text>
                     </TouchableOpacity>
               )))}
             </ScrollView>
+            <ShoppingListModal visible={listModalVisible} onClose={() => setListModalVisible(false)} onConfirm={(name) => {}} />
             <View style={styles.addButtonContainer}>
-              <AddButton />
+              <AddButton onPress={() => setListModalVisible(true)} />
             </View>
           </View>
         </SafeAreaView>

@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { apiClient, clearToken, getToken, setToken } from "./apiClient";
-import { getFamilyAccount, getUser, saveFamilyAccount, type FamilyAccount } from './users.utils';
+import { getFamilyAccount, getUser, saveFamilyAccount, saveUser, User, type FamilyAccount } from './users.utils';
 
 export type Item = {
   _id: string; // MongoDB ObjectId as string
@@ -34,10 +34,13 @@ export async function getLists(): Promise<ShoppingList[]> {
     // const storedLists = await AsyncStorage.getItem("shoppingLists");
     const familyAccount = await getFamilyAccount();
     const storedLists = familyAccount.lists;
+    if (currentUser.privateLists && currentUser.privateLists.length > 0) {
+        storedLists.push(...currentUser.privateLists);
+    }
     if (!storedLists || storedLists.length === 0) {
         console.log("No shopping lists found in storage, fetching from API.");
         try {
-            const res = await apiClient.put('/lists/',{
+            const res = await apiClient.post('/lists/',{
                 name: "Grocery List",
                 items: [],
             });
@@ -65,16 +68,32 @@ export async function saveLists(lists: ShoppingList[]): Promise<void> {
     }
 }
 
-// export async function createList(listName: string): Promise<boolean> {
-//     const newList: ShoppingList = {
-//         _id: new Date().toISOString(),
-//         name: listName,
-//         items: [],
-//         createdAt: new Date().toISOString(),
-//         updatedAt: new Date().toISOString(),
-//     };
+export async function createShoppingList(listName: string, isPrivate: boolean): Promise<void> {
+    try {
+        const res = await apiClient.post('/lists/', {
+            name: listName, 
+            items: [],                       
+        });
+        const newList = res.data as ShoppingList;
+        console.log("Created new shopping list:", newList);
+        if (isPrivate) {
+            const currentUser = await getUser();
+            if (currentUser) {
+                if (!currentUser.privateLists) {
+                    currentUser.privateLists = [];
+                }
+                currentUser.privateLists.push(newList);
+                await saveUser(currentUser);
+            }
+        } else {
+            const familyAccount = await getFamilyAccount();
+            familyAccount.lists.push(newList);
+            await saveFamilyAccount(familyAccount);
+        }
+    } catch (error) {
+        console.error("Error creating shopping list:", error);
+    }   
+    
+}
 
-//     const currentLists = await getLists();
-//     currentLists.push(newList);
-//     await saveLists(currentLists);
-// }
+
