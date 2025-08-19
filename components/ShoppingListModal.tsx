@@ -3,7 +3,7 @@ import { Modal, StyleSheet, Text, TextInput, View } from "react-native";
 import CloseButton from "./CloseButton";
 import { MainButton } from "./MainButton";
 import { useState } from "react";
-import CheckBox from "./CheckBox";
+// import CheckBox from "./CheckBox";
 import { createShoppingList } from "@/utils/lists.utils";
 
 type ShoppingListModalProps = {
@@ -30,7 +30,7 @@ export default function ShoppingListModal({visible, onClose, onConfirm, confirmB
 
         if (!title) {
             console.log('Creating shopping list:', textInput, 'Private:', isChecked);
-            await createShoppingList(textInput, isChecked);
+            await createShoppingList(textInput);
             onClose();
         } else {
             // await updateShoppingList(textInput, isChecked);
@@ -54,10 +54,10 @@ export default function ShoppingListModal({visible, onClose, onConfirm, confirmB
                             value={textInput}
                             onChangeText={setTextInput}
                          />
-                         <View style={styles.checkboxContainer}>
+                         {/* <View style={styles.checkboxContainer}>
                              <CheckBox checked={isChecked} onChange={setIsChecked} size={iconSizes.sm} checkedColor={colors.primary} />
                              <Text style={[styles.checkboxLabel, { color: isChecked ? colors.textPrimary : colors.textSecondary }]}>Private</Text>
-                         </View>
+                         </View> */}
                         <MainButton label={confirmButtonLabel || "Create"} onPress={handleConfirm} />
                     </View>
                 </View>

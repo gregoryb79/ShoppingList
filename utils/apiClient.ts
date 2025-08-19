@@ -13,7 +13,7 @@ if (Constants.expoConfig && Constants.expoConfig.extra && Constants.expoConfig.e
 
 export const apiClient = axios.create({
     // baseURL: API_URL,
-    baseURL: "http://192.168.1.89:5050",
+    baseURL: "http://192.168.1.225:5050",
 });
 
 apiClient.interceptors.request.use(async (config) => {

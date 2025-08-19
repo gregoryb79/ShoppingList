@@ -1,99 +1,98 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { apiClient, clearToken, getToken, setToken } from "./apiClient";
-import { getFamilyAccount, getUser, saveFamilyAccount, saveUser, User, type FamilyAccount } from './users.utils';
+import { getUser, saveUser, User, } from './users.utils';
+import uuid from 'react-native-uuid';
 
 export type Item = {
-  _id: string; // MongoDB ObjectId as string
+  _id: string;
   name: string;
   price?: number;  
-  createdAt?: string;
-  updatedAt?: string;
 };
 
 export type ShoppingListItem = {
-  _id: string; // MongoDB ObjectId as string
-  name: string;
+  item: Item;
   quantity: number;
   bought: boolean;
 };
 
 export type ShoppingList = {
-  _id: string;
+  _id: string;  
   name: string;
   items: ShoppingListItem[];
+  shared: boolean;
   createdAt?: string;
   updatedAt?: string;
 };
 
 export async function getLists(): Promise<ShoppingList[]> {
-    // await new Promise(resolve => setTimeout(resolve, 3000));//to test loader
+
     // await AsyncStorage.clear();
-
+    
     const currentUser = await getUser();
-
-    // const storedLists = await AsyncStorage.getItem("shoppingLists");
-    const familyAccount = await getFamilyAccount();
-    const storedLists = familyAccount.lists;
-    if (currentUser.privateLists && currentUser.privateLists.length > 0) {
-        storedLists.push(...currentUser.privateLists);
-    }
+   
+    const storedLists = currentUser.lists;    
     if (!storedLists || storedLists.length === 0) {
-        console.log("No shopping lists found in storage, fetching from API.");
-        try {
-            const res = await apiClient.post('/lists/',{
-                name: "Grocery List",
-                items: [],
-            });
-            const newList = res.data as ShoppingList;
-            console.log("Fetched default list from API:", newList);
-            familyAccount.lists.push(newList);
-            await saveFamilyAccount(familyAccount);            
-            console.log("No shopping lists found, initializing with default list.", familyAccount.lists);
-            return familyAccount.lists;            
-        }catch (error) {
-            console.error('Error fetching default list:', error);
-            return [];
-        }      
+        console.log("No shopping lists found in storage, creating default list.");
+      
+        const newList: ShoppingList = {
+            _id: 'L-' + uuid.v4(),
+            name: "Grocery List",
+            shared: false,
+            items: [],
+        };
+        console.log("Default list created:", newList);
+        currentUser.lists.push(newList);
+        await saveUser(currentUser);
+        return currentUser.lists;
+
     }
     console.log("Shopping lists found in storage, returning existing lists.", storedLists);
     return storedLists;    
 }
 
-export async function saveLists(lists: ShoppingList[]): Promise<void> {
-    try {
-        await AsyncStorage.setItem("shoppingLists", JSON.stringify(lists));
-        console.log("Shopping lists saved to storage.");
-    } catch (error) {
-        console.error("Error saving shopping lists:", error);
-    }
+export async function createShoppingList(listName: string): Promise<void> {
+    const newList: ShoppingList = {
+        _id: 'L-' + uuid.v4(),
+        name: listName,
+        items: [],
+        shared: false,
+    };
+    console.log("Created new shopping list:", newList);
+    const currentUser = await getUser();
+    currentUser.lists.push(newList);   
+    await saveUser(currentUser);   
+           
 }
 
-export async function createShoppingList(listName: string, isPrivate: boolean): Promise<void> {
-    try {
-        const res = await apiClient.post('/lists/', {
-            name: listName, 
-            items: [],                       
-        });
-        const newList = res.data as ShoppingList;
-        console.log("Created new shopping list:", newList);
-        if (isPrivate) {
-            const currentUser = await getUser();
-            if (currentUser) {
-                if (!currentUser.privateLists) {
-                    currentUser.privateLists = [];
-                }
-                currentUser.privateLists.push(newList);
-                await saveUser(currentUser);
-            }
+export function mergeLists(serverLists: ShoppingList[], localLists: ShoppingList[]): ShoppingList[] {
+    const merged = [...localLists];
+
+    serverLists.forEach(serverList => {
+        const localList = merged.find(list => list._id === serverList._id);
+        if (localList) {
+            // Merge items if the list exists locally
+            localList.items = mergeListEntries(serverList.items, localList.items);
         } else {
-            const familyAccount = await getFamilyAccount();
-            familyAccount.lists.push(newList);
-            await saveFamilyAccount(familyAccount);
+            // If the list doesn't exist locally, add it
+            merged.push(serverList);
         }
-    } catch (error) {
-        console.error("Error creating shopping list:", error);
-    }   
-    
+    });
+
+    return merged;
 }
 
+export function mergeListEntries(serverListEntries: ShoppingListItem[], localListEntries: ShoppingListItem[]): ShoppingListItem[] {
+    const merged = [...localListEntries];
+    
+    serverListEntries.forEach(serverListEntry => {
+        const localEntry = merged.find(entry => entry.item._id === serverListEntry.item._id);
+        if (localEntry) {
+            localEntry.quantity = Math.max(serverListEntry.quantity, localEntry.quantity);
+            localEntry.bought = serverListEntry.bought || localEntry.bought;
+        } else {
+            merged.push(serverListEntry);
+        }
+    });
 
+    return merged;
+}
