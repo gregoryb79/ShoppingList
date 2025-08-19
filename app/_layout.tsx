@@ -5,7 +5,7 @@ import { colors, typography, spacing, borderRadius } from '../styles/tokens';
 import { ActivityIndicator, View, Text } from 'react-native';
 import SettingsButton from '@/components/SettingsButton';
 import HamburgerButton from '@/components/HamburgerButton';
-import { getUser } from '@/utils/users.utils';
+import { getUser, syncUser } from '@/utils/users.utils';
 
 
 
@@ -13,21 +13,20 @@ import { getUser } from '@/utils/users.utils';
 export default function RootLayout() {
     const [loading, setLoading] = useState(true);
     
-    // useEffect(() => {
-    //     async function initializeApp (){
-    //         setLoading(true);
-    //         try {
-    //             // const user = await getUser();                
-    //             // await initiateListsStorage();
-    //         } catch (error) {
-    //             console.error('Error during app initialization:', error);
-    //         } finally {
-    //             setLoading(false);
-    //         }
-    //     };
+    useEffect(() => {
+        async function initializeApp (){
+            setLoading(true);
+            try {
+                syncUser();
+            } catch (error) {
+                console.error('Error during app initialization:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
         
-    //     initializeApp();
-    // }, []);
+        initializeApp();
+    }, []);
    
 
     // if (loading) {

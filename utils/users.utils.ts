@@ -65,6 +65,7 @@ export async function syncUser(): Promise<void> {
             const mergedLists = mergeLists(serverLists,currentUser.lists);
             currentUser.lists = mergedLists;
             await saveUser(currentUser);
+            console.log('User data synced successfully:', currentUser.name);
         } else {
             console.error('Error syncing data from server:', res);
         }
@@ -72,6 +73,9 @@ export async function syncUser(): Promise<void> {
         console.error('Error syncing data from server:', error);
     }
     try {
+
+        console.log('Syncing user account to server:', currentUser, currentUser.lists);
+
         const res = await apiClient.put(`/users`, currentUser);
         if (res.status === 200) {
             console.log('User account synced successfully:', res.data);
