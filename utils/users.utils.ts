@@ -74,17 +74,18 @@ export async function syncUser(): Promise<void> {
     }
     try {
 
-        console.log('Syncing user account to server:', currentUser, currentUser.lists);
-
+        // console.log('Syncing user account to server:', currentUser, currentUser.lists);
         const res = await apiClient.put(`/users`, currentUser);
         if (res.status === 200) {
-            console.log('User account synced successfully:', res.data);
+            console.log('User account synced successfully');
         } else {
             console.error('Error syncing user account to server:', res);
         }
     } catch (error) {
         console.error('Error syncing user account to server:', error);
     }
+
+    return;
 }
 
 

@@ -1,23 +1,25 @@
 import { router, Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { colors, typography, spacing, borderRadius } from '../styles/tokens';
+import { colors, typography, spacing, borderRadius, iconSizes } from '../styles/tokens';
 
 import { ActivityIndicator, View, Text } from 'react-native';
 import SettingsButton from '@/components/SettingsButton';
 import HamburgerButton from '@/components/HamburgerButton';
 import { getUser, syncUser } from '@/utils/users.utils';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 
 
 
 export default function RootLayout() {
     const [loading, setLoading] = useState(true);
-    
-    useEffect(() => {
+    const [connected, setConnected] = useState(false);
+
+    useEffect(() => {     
         async function initializeApp (){
             setLoading(true);
             try {
-                syncUser();
+                const user = await getUser();                                
             } catch (error) {
                 console.error('Error during app initialization:', error);
             } finally {
@@ -26,24 +28,37 @@ export default function RootLayout() {
         };
         
         initializeApp();
+
+          try {
+            syncUser().then(() => {
+                console.log('User data synced successfully, setting connected to true');
+                setConnected(true);
+            });
+        } catch (error) {
+            console.error('Error during app initialization:', error);
+        } 
+
     }, []);
    
 
-    // if (loading) {
-    //     return (
-    //     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-    //         <ActivityIndicator size="large" />
-    //         <Text>Initializing app...</Text>        
-    //     </View>
-    //     );
-    // }
+    if (loading) {
+        return (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <ActivityIndicator size="large" />
+            <Text>Initializing app...</Text>        
+        </View>
+        );
+    }
 
     return (
         <Stack screenOptions= {headerOptions}>
             <Stack.Screen name="index" options={{ 
                 headerLeft: () => <HamburgerButton onPress={() => {}} style={{marginRight: spacing.md}}/>,
                 title: 'Shopping List',
-                headerRight: () => <SettingsButton onPress={() => {}}/>
+                headerRight: () => (<>
+                    {!connected && <Icon name="cloud-off" size={iconSizes.md} color={colors.textSecondary}/>}
+                    <SettingsButton onPress={() => {}}/>                    
+                </>)
             }}/>
             {/* <Stack.Screen name="index" options={{ title: 'TravelExpences ', headerRight: () => <SettingsButton onPress={() => {router.push('/settings')}}/>}} />
             <Stack.Screen name="expenses" options={{ title: 'Expenses', headerRight: () => <SettingsButton onPress={() => {router.push('/settings')}}/> }} />                        
