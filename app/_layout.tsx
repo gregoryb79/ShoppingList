@@ -1,11 +1,11 @@
-import { router, Stack } from 'expo-router';
+import { Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { colors, typography, spacing, borderRadius, iconSizes } from '../styles/tokens';
+import { colors, iconSizes, spacing, typography } from '../styles/tokens';
 
-import { ActivityIndicator, View, Text } from 'react-native';
-import SettingsButton from '@/components/SettingsButton';
 import HamburgerButton from '@/components/HamburgerButton';
+import SettingsButton from '@/components/SettingsButton';
 import { getUser, syncUser } from '@/utils/users.utils';
+import { ActivityIndicator, Text, View } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 
@@ -29,14 +29,30 @@ export default function RootLayout() {
         
         initializeApp();
 
-          try {
-            syncUser().then(() => {
-                console.log('User data synced successfully, setting connected to true');
-                setConnected(true);
-            });
-        } catch (error) {
-            console.error('Error during app initialization:', error);
-        } 
+        function syncUserData() {
+            try {
+                syncUser().then((result) => {
+                    if (result === true) {
+                        console.log('User data synced successfully, setting connected to true');
+                        setConnected(true);
+                    } else {
+                        console.log('Sync failed or returned false, setting connected to false');
+                        setConnected(false);
+                    }
+                });
+            } catch (error) {
+                console.error('Error during app initialization:', error);
+            } 
+        }        
+
+        syncUserData();
+        const intervalTime = connected ? 300000 : 30000; 
+
+        const interval = setInterval(() => {
+            syncUserData();
+        }, intervalTime);
+
+        return () => clearInterval(interval);
 
     }, []);
    

@@ -46,7 +46,7 @@ export async function getLists(): Promise<ShoppingList[]> {
         return currentUser.lists;
 
     }
-    console.log("Shopping lists found in storage, returning existing lists.", storedLists);
+    console.log("Shopping lists found in storage, returning existing lists.", storedLists.length);
     return storedLists;    
 }
 
