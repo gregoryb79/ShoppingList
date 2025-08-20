@@ -65,8 +65,7 @@ export async function syncUser(): Promise<boolean> {
             const mergedLists = mergeLists(serverLists,currentUser.lists);
             currentUser.lists = mergedLists;
             await saveUser(currentUser);
-            console.log('User data synced successfully:', currentUser.name);
-            return true;
+            console.log('User data synced successfully:', currentUser.name);            
         } else {
             console.error('Error syncing data from server:', res);
             return false;
@@ -80,7 +79,8 @@ export async function syncUser(): Promise<boolean> {
             return false;
         } else {
             // Something else happened
-            console.log('Other error:', error.message);            
+            console.log('Other error:', error.message);  
+            return false;           
         }
     }
     try {
@@ -92,19 +92,23 @@ export async function syncUser(): Promise<boolean> {
             return true;
         } else {
             console.error('Error syncing user account to server:', res);
+            return false;
         }
     } catch (error: any) {
         if (error.response) {
             console.error('Error syncing data from server:', error.response.data);
+            return false; 
         } else if (error.request) {
             console.log('Network error or timeout:', error.message);
+            return false;
         } else {
             // Something else happened
             console.log('Other error:', error.message);
+            return false;
         }
     }
 
-    return false;
+    return false;    
 }
 
 

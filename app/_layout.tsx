@@ -11,6 +11,9 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 
 
 
+const SYNC_INTERVAL_CONNECTED = 300000; // 5 minutes in ms
+const SYNC_INTERVAL_DISCONNECTED = 30000; // 30 seconds in ms
+
 export default function RootLayout() {
     const [loading, setLoading] = useState(true);
     const [connected, setConnected] = useState(false);
@@ -46,7 +49,7 @@ export default function RootLayout() {
         }        
 
         syncUserData();
-        const intervalTime = connected ? 300000 : 30000; 
+        const intervalTime = connected ? SYNC_INTERVAL_CONNECTED : SYNC_INTERVAL_DISCONNECTED; 
 
         const interval = setInterval(() => {
             syncUserData();
@@ -54,7 +57,7 @@ export default function RootLayout() {
 
         return () => clearInterval(interval);
 
-    }, []);
+    }, [connected]);
    
 
     if (loading) {
