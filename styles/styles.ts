@@ -14,6 +14,11 @@ export const styles = StyleSheet.create({
         fontWeight: typography.weights.bold,        
         color: colors.textPrimary,
     },    
+    h4: {
+        fontSize: typography.md,
+        fontWeight: typography.weights.bold,        
+        color: colors.textPrimary,
+    },
     text_md: {
         fontSize: typography.md,
         color: colors.textPrimary,
@@ -53,5 +58,13 @@ export const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'column',        
         marginBottom: spacing.sm,
+    },
+    quickInput: {
+        fontSize: typography.lg,
+        borderWidth: 1,
+        borderColor: colors.border,
+        borderRadius: borderRadius.base,
+        padding: spacing.sm,
+        marginBottom: spacing.md,
     },
 });

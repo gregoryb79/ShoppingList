@@ -5,7 +5,7 @@ import { colors, iconSizes } from '../styles/tokens';
 type SettingsButtonProps = {
     onPress?: () => void;    
 }
-export default function HamburgerButton({onPress}: SettingsButtonProps) {
+export default function AddButton({onPress}: SettingsButtonProps) {
     return (
         <TouchableOpacity 
             onPress={onPress}            

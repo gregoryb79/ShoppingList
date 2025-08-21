@@ -64,6 +64,49 @@ export async function createShoppingList(listName: string): Promise<void> {
            
 }
 
+export async function getList(id: string): Promise<ShoppingList | null> {
+    const currentUser = await getUser();
+    const list = currentUser.lists.find(list => list._id === id);
+    return list || null;
+}
+
+export async function syncList(id: string): Promise<boolean> {
+    const currentUser = await getUser();
+    const localList = currentUser.lists.find(list => list._id === id);
+    if (!localList) {
+        console.error('Local list not found for sync:', id);
+        return false;
+    }
+    
+    try{
+        const serverList = await apiClient.get(`/lists/${id}`) as ShoppingList;
+        if (!serverList) {
+            console.error('Server list not found for sync:', id);
+            return false;
+        }
+        localList.items = mergeListEntries(serverList.items, localList.items);
+        currentUser.lists = currentUser.lists.filter(list => list._id !== id);
+        currentUser.lists.push(localList);
+        await saveUser(currentUser);
+    }catch (error) {
+        console.error('Error fetching server list:', error);
+        return false;
+    }
+    
+    try{
+        const res = await apiClient.put(`/lists/${id}`, localList);
+        if (res.status !== 200) {
+            console.error('Error updating server list:', id);
+            return false;
+        }
+    }catch (error) {
+        console.log('Error updating server list:', error);
+        return false;
+    }
+
+    return true;
+}
+
 export function mergeLists(serverLists: ShoppingList[], localLists: ShoppingList[]): ShoppingList[] {
     const merged = [...localLists];
 

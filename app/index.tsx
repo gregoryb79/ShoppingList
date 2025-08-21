@@ -39,7 +39,7 @@ export default function HomeScreen() {
                 <Text style={styles.h3}>Ooops something went wrong, no shopping list found...</Text>
               ) : (
                 lists?.map(list => (                    
-                      <TouchableOpacity key={list._id} style={styles.shoppingListsRow} onPress={() => router.push(`/lists?id=${list._id}` as any)}>
+                      <TouchableOpacity key={list._id} style={styles.shoppingListsRow} onPress={() => router.push(`/list?id=${list._id}` as any)}>
                           <Text style={styles.text_md}>{list.name}</Text>
                           <Text style={styles.text_md}>{list.items.length === 0 ? 'Empty' : `${list.items.length} items`}</Text>
                       </TouchableOpacity>

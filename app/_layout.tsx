@@ -72,11 +72,19 @@ export default function RootLayout() {
     return (
         <Stack screenOptions= {headerOptions}>
             <Stack.Screen name="index" options={{ 
-                headerLeft: () => <HamburgerButton onPress={() => {}} style={{marginRight: spacing.md}}/>,
+                // headerLeft: () => <HamburgerButton onPress={() => {}} style={{marginRight: spacing.md}}/>,
                 title: 'Shopping List',
                 headerRight: () => (<>
                     {!connected && <Icon name="cloud-off" size={iconSizes.md} color={colors.textSecondary}/>}
-                    <SettingsButton onPress={() => {}}/>                    
+                    <HamburgerButton onPress={() => {}}/>                    
+                </>)
+            }}/>
+            <Stack.Screen name="list" options={{ 
+                // headerLeft: () => <HamburgerButton onPress={() => {}} style={{marginRight: spacing.md}}/>,
+                title: 'Shopping List',
+                headerRight: () => (<>
+                    {!connected && <Icon name="cloud-off" size={iconSizes.md} color={colors.textSecondary}/>}
+                    <HamburgerButton onPress={() => {}}/>                    
                 </>)
             }}/>
             {/* <Stack.Screen name="index" options={{ title: 'TravelExpences ', headerRight: () => <SettingsButton onPress={() => {router.push('/settings')}}/>}} />
