@@ -14,6 +14,7 @@ export const colors = {
   surfaceSecondary: '#f9f9f9',
   surfaceLight: '#f0f0f0',
   primaryBlue: '#3B82F6',
+  primaryLight: '#c1dbfbff',
   
   // Border colors
   border: '#ddd',

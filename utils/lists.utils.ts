@@ -9,7 +9,7 @@ export type Item = {
   price?: number;  
 };
 
-export type ShoppingListItem = {
+export type ShoppingListRow = {
   item: Item;
   quantity: number;
   bought: boolean;
@@ -18,7 +18,7 @@ export type ShoppingListItem = {
 export type ShoppingList = {
   _id: string;  
   name: string;
-  items: ShoppingListItem[];
+  items: ShoppingListRow[];
   shared: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -64,6 +64,38 @@ export async function createShoppingList(listName: string): Promise<void> {
            
 }
 
+export async function addToList(listId: string, itemName: string): Promise<void> {
+    const currentUser = await getUser();
+    const list = currentUser.lists.find(list => list._id === listId);
+    if (!list) {
+        console.error('List not found:', listId);
+        return;
+    }
+
+    const newItem: Item = {
+        _id: 'I-' + uuid.v4(),
+        name: itemName,
+    };
+    const newRow: ShoppingListRow = {
+        item: newItem,
+        quantity: 1,
+        bought: false,
+    };
+    console.log('Adding new item to list:', newRow);
+
+    list.items.push(newRow);
+    await saveUser(currentUser);    
+}
+
+export async function updateList(updatedList: ShoppingList): Promise<void> {
+    const currentUser = await getUser();
+    const listIndex = currentUser.lists.findIndex(list => list._id === updatedList._id);
+    if (listIndex !== -1) {
+        currentUser.lists[listIndex] = updatedList;
+        await saveUser(currentUser);
+    }
+}
+
 export async function getList(id: string): Promise<ShoppingList | null> {
     const currentUser = await getUser();
     const list = currentUser.lists.find(list => list._id === id);
@@ -71,6 +103,7 @@ export async function getList(id: string): Promise<ShoppingList | null> {
 }
 
 export async function syncList(id: string): Promise<boolean> {
+    console.log('Syncing list with id:', id);
     const currentUser = await getUser();
     const localList = currentUser.lists.find(list => list._id === id);
     if (!localList) {
@@ -79,12 +112,16 @@ export async function syncList(id: string): Promise<boolean> {
     }
     
     try{
-        const serverList = await apiClient.get(`/lists/${id}`) as ShoppingList;
+        console.log('Fetching server list for sync:', id);
+        const response = await apiClient.get(`/lists/${id}`);
+        const serverList = response.data as ShoppingList;
+        console.log('Server list fetched:', serverList.items.length);
         if (!serverList) {
             console.error('Server list not found for sync:', id);
             return false;
         }
         localList.items = mergeListEntries(serverList.items, localList.items);
+        console.log('Server list with merged with local list:', id);
         currentUser.lists = currentUser.lists.filter(list => list._id !== id);
         currentUser.lists.push(localList);
         await saveUser(currentUser);
@@ -94,6 +131,7 @@ export async function syncList(id: string): Promise<boolean> {
     }
     
     try{
+        console.log('Updating server list:', id,localList);
         const res = await apiClient.put(`/lists/${id}`, localList);
         if (res.status !== 200) {
             console.error('Error updating server list:', id);
@@ -124,7 +162,7 @@ export function mergeLists(serverLists: ShoppingList[], localLists: ShoppingList
     return merged;
 }
 
-export function mergeListEntries(serverListEntries: ShoppingListItem[], localListEntries: ShoppingListItem[]): ShoppingListItem[] {
+export function mergeListEntries(serverListEntries: ShoppingListRow[], localListEntries: ShoppingListRow[]): ShoppingListRow[] {
     const merged = [...localListEntries];
     
     serverListEntries.forEach(serverListEntry => {

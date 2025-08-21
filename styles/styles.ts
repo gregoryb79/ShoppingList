@@ -23,6 +23,10 @@ export const styles = StyleSheet.create({
         fontSize: typography.md,
         color: colors.textPrimary,
     },    
+    text_sm: {
+        fontSize: typography.sm,
+        color: colors.textPrimary,
+    }, 
     text_center: {
         textAlign: 'center',
     },
@@ -52,19 +56,28 @@ export const styles = StyleSheet.create({
     },
     addButtonContainer: {        
         flexDirection: 'row',
-        justifyContent: 'center',        
+        justifyContent: 'center',
+        gap: spacing.md,
     },
     shoppingListsContainer: {
         flex: 1,
         flexDirection: 'column',        
         marginBottom: spacing.sm,
     },
+    quickEntryContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        // borderWidth: 1,
+        // borderBottomColor: colors.border, 
+    },
     quickInput: {
+        flex: 1,
         fontSize: typography.lg,
         borderWidth: 1,
         borderColor: colors.border,
         borderRadius: borderRadius.base,
         padding: spacing.sm,
-        marginBottom: spacing.md,
+        // marginBottom: spacing.md,
+        marginLeft: spacing.md,
     },
 });
