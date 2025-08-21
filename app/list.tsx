@@ -42,7 +42,15 @@ export default function ShoppingListScreen() {
     async function fetchData() {
             try {
                 const data = await getList(listId);
-                if (data) setList(data);
+                if (!data) {
+                    console.error('No shopping list found with id:', listId);
+                    return;
+                }
+                const sortedItems = data.items.slice().sort((a, b) => {
+                    if (a.bought === b.bought) return 0;
+                    return a.bought ? 1 : -1;
+                });
+                setList({ ...data, items: sortedItems });
             } catch (error) {
                 console.error('Error fetching shopping list:', error);
             } finally {
@@ -62,6 +70,7 @@ export default function ShoppingListScreen() {
         setList(updatedList);
 
         syncShoppingList();
+        fetchData();
     }
 
     function syncShoppingList() {
@@ -88,13 +97,15 @@ export default function ShoppingListScreen() {
     }
 
     async function deleteSelectedRows() {
-        if (!list) return;
-        const updatedItems = list.items.filter(row => !selectedRows.includes(row.item._id));
-        const updatedList = { ...list, items: updatedItems };
-        await updateList(updatedList);
-        setList(updatedList);
-        setSelectedRows([]);
-        syncShoppingList();
+        console.log('Deleting selected rows:', selectedRows);
+        // if (!list) return;
+        // const updatedItems = list.items.filter(row => !selectedRows.includes(row.item._id));
+        // const updatedList = { ...list, items: updatedItems };
+        // console.log("Items length:", updatedList.items.length);
+        // await updateList(updatedList);
+        // setList(updatedList);
+        // setSelectedRows([]);
+        // syncShoppingList();
     }
 
     return (

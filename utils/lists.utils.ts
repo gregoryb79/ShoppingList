@@ -50,6 +50,12 @@ export async function getLists(): Promise<ShoppingList[]> {
     return storedLists;    
 }
 
+export async function deleteLists(listIds: string[]): Promise<void> {
+    const currentUser = await getUser();
+    currentUser.lists = currentUser.lists.filter(list => !listIds.includes(list._id));
+    await saveUser(currentUser);
+}
+
 export async function createShoppingList(listName: string): Promise<void> {
     const newList: ShoppingList = {
         _id: 'L-' + uuid.v4(),
@@ -92,6 +98,7 @@ export async function updateList(updatedList: ShoppingList): Promise<void> {
     const listIndex = currentUser.lists.findIndex(list => list._id === updatedList._id);
     if (listIndex !== -1) {
         currentUser.lists[listIndex] = updatedList;
+        console.log('Updated lists:', currentUser.lists);
         await saveUser(currentUser);
     }
 }
