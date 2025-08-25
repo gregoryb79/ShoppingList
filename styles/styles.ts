@@ -9,6 +9,12 @@ export const styles = StyleSheet.create({
         padding: spacing.lg,  
         gap: spacing.md,     
     },
+    h2: {
+        fontSize: typography.xxl,
+        fontWeight: typography.weights.bold,        
+        color: colors.primary,
+        // textAlign: 'center',
+    },
     h3: {
         fontSize: typography.lg,
         fontWeight: typography.weights.bold,        
@@ -19,16 +25,24 @@ export const styles = StyleSheet.create({
         fontWeight: typography.weights.bold,        
         color: colors.textPrimary,
     },
+    text_lg: {
+        fontSize: typography.lg,
+        color: colors.textPrimary,
+    },    
     text_md: {
         fontSize: typography.md,
         color: colors.textPrimary,
-    },    
+    },
     text_sm: {
         fontSize: typography.sm,
         color: colors.textPrimary,
     }, 
     text_center: {
         textAlign: 'center',
+    },
+    link: {
+        color: colors.primary,
+        textDecorationLine: 'underline',
     },
     backgroundWhite:{
         backgroundColor: colors.textWhite,
@@ -81,4 +95,23 @@ export const styles = StyleSheet.create({
         // marginBottom: spacing.md,
         marginLeft: spacing.md,        
     },
+    loginContainer: {
+        // flex: 1,
+        marginTop: spacing.xl,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: spacing.sm,
+        gap: spacing.md,        
+    },
+    loginInput: {
+        // flex: 1,
+        width: '100%',
+        fontSize: typography.lg,
+        borderWidth: 1,
+        borderColor: colors.border,
+        borderRadius: borderRadius.base,
+        padding: spacing.sm,
+        marginBottom: spacing.md,
+    },
+
 });

@@ -1,6 +1,7 @@
 import axios from "axios";
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from "expo-router";
 
 export const tokenKeyName = "token";
 
@@ -35,4 +36,27 @@ export async function setToken(token: string) {
 
 export async function clearToken() {
     await AsyncStorage.removeItem(tokenKeyName);
+}
+
+export async function isTokenExpired(): Promise<boolean> {
+    const token = await AsyncStorage.getItem(tokenKeyName);
+    try {
+        if (!token) return true;
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (!payload.exp) return true;
+        // exp is in seconds, Date.now() is in ms
+        return Date.now() >= payload.exp * 1000;
+    } catch (e) {
+        return true; // treat invalid token as expired
+    }
+}
+
+export async function verifyToken(): Promise<void> {
+    const isExpired = await isTokenExpired();
+    if (isExpired) {
+        console.log('Token is expired');
+        router.replace('/login');
+    } else {
+        console.log('Token is valid');
+    }
 }

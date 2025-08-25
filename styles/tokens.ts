@@ -1,3 +1,9 @@
+import { Dimensions } from 'react-native';
+
+// Responsive scaling function
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const BASE_WIDTH = 375; // iPhone 11 Pro as base
+const scale = (size: number) => Math.round((SCREEN_WIDTH / BASE_WIDTH) * size);
 export const colors = {
   // Primary colors
   primary: '#007AFF',
@@ -23,13 +29,13 @@ export const colors = {
 
 export const typography = {
   // Font sizes
-  xs: 12,
-  sm: 14,
-  base: 16,
-  md: 18,
-  lg: 20,
-  xl: 24,
-  xxl: 28,
+  xs: scale(12),
+  sm: scale(14),
+  base: scale(16),
+  md: scale(18),
+  lg: scale(20),
+  xl: scale(24),
+  xxl: scale(28),
   
   // Font weights
   weights: {
@@ -41,12 +47,12 @@ export const typography = {
 };
 
 export const spacing = {
-  xs: 2,
-  sm: 5,
-  base: 10,
-  md: 15,
-  lg: 20,
-  xl: 40,
+  xs: scale(2),
+  sm: scale(5),
+  base: scale(10),
+  md: scale(15),
+  lg: scale(20),
+  xl: scale(40),
 };
 
 export const borderRadius = {
@@ -56,8 +62,8 @@ export const borderRadius = {
 };
 
 export const iconSizes = {
-  xs: 16,
-  sm: 24,
-  md: 30,
-  lg: 40,
+  xs: scale(16),
+  sm: scale(24),
+  md: scale(30),
+  lg: scale(40),
 };

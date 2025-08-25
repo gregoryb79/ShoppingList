@@ -30,7 +30,7 @@ export const styles = StyleSheet.create({
     },
     primaryButtonText: {
         color: colors.textWhite,
-        fontSize: typography.md,
+        fontSize: typography.xl,
         fontWeight: typography.weights.semibold,
     },
 });

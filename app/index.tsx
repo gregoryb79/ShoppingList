@@ -5,6 +5,7 @@ import Loader from '@/components/Loader';
 import ShoppingListModal from '@/components/ShoppingListModal';
 import { styles } from '@/styles/styles';
 import { colors } from '@/styles/tokens';
+import { isTokenExpired, verifyToken } from '@/utils/apiClient';
 import { deleteLists, getLists, ShoppingList } from '@/utils/lists.utils';
 import { syncUser } from '@/utils/users.utils';
 import { router } from 'expo-router';
@@ -13,7 +14,9 @@ import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 
-export default function HomeScreen() {  
+export default function HomeScreen() {
+    
+    console.log('Rendering HomeScreen');
 
     // const [users, setUsers] = useState<User[]>([]);
     const [lists, setLists] = useState<ShoppingList[]>([]);
@@ -37,6 +40,7 @@ export default function HomeScreen() {
 
     async function fetchData() {                  
         try {
+            await verifyToken();
             const data = await getLists();
             setLists(data);
         } catch (error) {

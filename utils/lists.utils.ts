@@ -159,7 +159,7 @@ export async function syncList(id: string): Promise<boolean> {
         currentUser.lists.push(localList);
         await saveUser(currentUser);
     }catch (error) {
-        console.error('Error fetching server list:', error);
+        console.log('Error fetching server list:', error);
         return false;
     }
     
