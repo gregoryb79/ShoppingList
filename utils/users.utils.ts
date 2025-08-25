@@ -145,7 +145,7 @@ export async function doLogout(): Promise<void> {
     try {
         await AsyncStorage.removeItem('currentUser');
         console.log('User logged out successfully');
-        // router.replace('/');
+        router.replace('/');
     } catch (error) {        
         console.log('Error logging out user:', error);        
     }

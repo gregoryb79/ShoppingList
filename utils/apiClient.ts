@@ -55,7 +55,7 @@ export async function verifyToken(): Promise<void> {
     const isExpired = await isTokenExpired();
     if (isExpired) {
         console.log('Token is expired');
-        router.replace('/login');
+        // router.replace('/login');
     } else {
         console.log('Token is valid');
     }
