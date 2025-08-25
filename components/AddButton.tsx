@@ -2,10 +2,10 @@ import { TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { colors, iconSizes } from '../styles/tokens';
 
-type SettingsButtonProps = {
+type AddButtonProps = {
     onPress?: () => void;    
 }
-export default function AddButton({onPress}: SettingsButtonProps) {
+export default function AddButton({onPress}: AddButtonProps) {
     return (
         <TouchableOpacity 
             onPress={onPress}            

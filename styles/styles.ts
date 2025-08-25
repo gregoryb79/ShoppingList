@@ -67,6 +67,7 @@ export const styles = StyleSheet.create({
     quickEntryContainer: {
         flexDirection: 'row',
         alignItems: 'center',
+        marginTop: spacing.sm,
         // borderWidth: 1,
         // borderBottomColor: colors.border, 
     },
@@ -78,6 +79,6 @@ export const styles = StyleSheet.create({
         borderRadius: borderRadius.base,
         padding: spacing.sm,
         // marginBottom: spacing.md,
-        marginLeft: spacing.md,
+        marginLeft: spacing.md,        
     },
 });

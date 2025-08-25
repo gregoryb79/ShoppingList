@@ -2,11 +2,11 @@ import { TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { colors, iconSizes } from '../styles/tokens';
 
-type SettingsButtonProps = {
+type EditButtonProps = {
     onPress?: () => void;
     disabled?: boolean;
 }
-export default function EditButton({onPress, disabled}: SettingsButtonProps) {
+export default function EditButton({onPress, disabled}: EditButtonProps) {
     return (
         <TouchableOpacity 
             onPress={onPress}            

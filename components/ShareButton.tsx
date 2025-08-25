@@ -2,11 +2,11 @@ import { TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { colors, iconSizes } from '../styles/tokens';
 
-type DeleteButtonProps = {
+type ShareButtonProps = {
     onPress?: () => void;
     disabled?: boolean;
 }
-export default function DeleteButton({onPress, disabled}: DeleteButtonProps) {
+export default function ShareButton({onPress, disabled}: ShareButtonProps) {
     return (
         <TouchableOpacity 
             onPress={onPress}            
@@ -15,7 +15,7 @@ export default function DeleteButton({onPress, disabled}: DeleteButtonProps) {
                 { borderColor: disabled ? colors.textSecondary : colors.primaryBlue }
             ]}
             disabled={disabled}>            
-            <Icon name="delete" size={iconSizes.lg} color={disabled ? colors.textSecondary : colors.primaryBlue}/>
+            <Icon name="share" size={iconSizes.lg} color={disabled ? colors.textSecondary : colors.primaryBlue}/>
         </TouchableOpacity>
     );
 }

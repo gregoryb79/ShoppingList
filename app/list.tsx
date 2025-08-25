@@ -1,19 +1,18 @@
 import AddButton from '@/components/AddButton';
 import Loader from '@/components/Loader';
-import ShoppingListModal from '@/components/ShoppingListModal';
 import { styles } from '@/styles/styles';
 import { addToList, deleteFromList, getList, type ShoppingList, syncList, updateList } from '@/utils/lists.utils';
-import { router, useLocalSearchParams } from 'expo-router';
-import { sortRoutesWithInitial } from 'expo-router/build/sortRoutes';
+import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Share, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { useConnected } from './_layout'
 import CheckBox from '@/components/CheckBox';
-import { colors } from '@/styles/tokens';
-import EditButton from '@/components/EditButton';
 import DeleteButton from '@/components/DeleteButton';
+import EditButton from '@/components/EditButton';
+import ShareButton from '@/components/ShareButton';
+import { colors } from '@/styles/tokens';
+import { useConnected } from './_layout';
 
 export default function ShoppingListScreen() { 
     const params = useLocalSearchParams();
@@ -104,6 +103,13 @@ export default function ShoppingListScreen() {
         fetchData();        
     }
 
+    async function handleShare() {
+        if (!list) return;
+        const sharingLink = `shoppinglist://list?id=${list._id}`;
+        console.log('Sharing link:', sharingLink);
+        await Share.share({ message: sharingLink });
+    }
+
     return (
         <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
           <View style={styles.mainScreenContainer}>
@@ -137,7 +143,9 @@ export default function ShoppingListScreen() {
             <View style={styles.addButtonContainer}>
                 <EditButton onPress={() => {}} disabled={selectedRows.length !== 1} />
                 <AddButton onPress={() => {}} />
+                <ShareButton onPress={handleShare} />
                 <DeleteButton onPress={deleteSelectedRows} disabled={selectedRows.length === 0}/>
+                
             </View>           
           </View>
           
