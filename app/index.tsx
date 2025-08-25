@@ -21,17 +21,7 @@ export default function HomeScreen() {
     const [listModalVisible, setListModalVisible] = useState(false);
     const [selectedRows, setSelectedRows] = useState<string[]>([]);
 
-     useEffect(() => {
-        async function fetchData() {                  
-            try {
-                const data = await getLists();
-                setLists(data);
-            } catch (error) {
-               console.error('Error initializing data:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
+     useEffect(() => {        
         fetchData();
     }, [listModalVisible]);
 
@@ -45,13 +35,22 @@ export default function HomeScreen() {
         });
     }
 
-    async function deleteSelectedRows() {
-        if (selectedRows.length === 0) return;
-        const updatedLists = lists.filter(list => !selectedRows.includes(list._id));
-        setLists(updatedLists);
-        setSelectedRows([]);        
+    async function fetchData() {                  
+        try {
+            const data = await getLists();
+            setLists(data);
+        } catch (error) {
+            console.error('Error initializing data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    async function deleteSelectedRows() { 
+        console.log('Deleting selected rows:', selectedRows);             
         await deleteLists(selectedRows); 
-        await syncUser();           
+        setSelectedRows([]);  
+        await fetchData();         
     }
 
     return (
@@ -59,16 +58,16 @@ export default function HomeScreen() {
           <View style={styles.mainScreenContainer}>
             {loading && <Loader />}
             <ScrollView style={styles.shoppingListsContainer}>
-              { !lists || lists.length === 0 ? (
+              { !lists || lists.filter(list => !list.isDeleted).length === 0 ? (
                 <Text style={styles.h3}>Ooops something went wrong, no shopping list found...</Text>
               ) : (
-                lists?.map(list => (                    
+                lists?.map(list => (!list.isDeleted &&                     
                       <TouchableOpacity key={list._id} 
                         style={[styles.shoppingListsRow, { backgroundColor: selectedRows.includes(list._id) ? colors.primaryLight : 'transparent' }]} 
                         onPress={() => router.push(`/list?id=${list._id}` as any)} 
                         onLongPress={() => handleRowSelect(list._id)}>
                           <Text style={styles.text_md}>{list.name}</Text>
-                          <Text style={styles.text_md}>{list.items.length === 0 ? 'Empty' : `${list.items.length} items`}</Text>
+                          <Text style={styles.text_md}>{list.items.filter(item => !item.isDeleted).length === 0 ? 'Empty' : `${list.items.filter(item => !item.isDeleted).length} items`}</Text>
                       </TouchableOpacity>
                     
               )))}

@@ -2,7 +2,7 @@ import AddButton from '@/components/AddButton';
 import Loader from '@/components/Loader';
 import ShoppingListModal from '@/components/ShoppingListModal';
 import { styles } from '@/styles/styles';
-import { addToList, getList, getLists, type ShoppingList, syncList, updateList } from '@/utils/lists.utils';
+import { addToList, deleteFromList, getList, type ShoppingList, syncList, updateList } from '@/utils/lists.utils';
 import { router, useLocalSearchParams } from 'expo-router';
 import { sortRoutesWithInitial } from 'expo-router/build/sortRoutes';
 import React, { useEffect, useState } from 'react';
@@ -98,14 +98,10 @@ export default function ShoppingListScreen() {
 
     async function deleteSelectedRows() {
         console.log('Deleting selected rows:', selectedRows);
-        // if (!list) return;
-        // const updatedItems = list.items.filter(row => !selectedRows.includes(row.item._id));
-        // const updatedList = { ...list, items: updatedItems };
-        // console.log("Items length:", updatedList.items.length);
-        // await updateList(updatedList);
-        // setList(updatedList);
-        // setSelectedRows([]);
-        // syncShoppingList();
+        if (!list) return;
+        await deleteFromList(list._id, selectedRows);
+        setSelectedRows([]);
+        fetchData();        
     }
 
     return (
@@ -125,7 +121,7 @@ export default function ShoppingListScreen() {
               { !list ? (
                 <Text style={styles.h4}>Ooops something went wrong, no shopping list found...</Text>
               ) : (
-                list.items.map(row => (
+                list.items.map(row => (!row.isDeleted &&
                       <TouchableOpacity key={row.item._id} 
                         style={[styles.shoppingListsRow, { backgroundColor: selectedRows.includes(row.item._id) ? colors.primaryLight : 'transparent' }]} 
                         onLongPress={() => {handleRowSelect(row.item._id)}}>

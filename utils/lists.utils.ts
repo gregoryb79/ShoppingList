@@ -6,13 +6,16 @@ import uuid from 'react-native-uuid';
 export type Item = {
   _id: string;
   name: string;
-  price?: number;  
+  price?: number;
 };
 
 export type ShoppingListRow = {
   item: Item;
   quantity: number;
   bought: boolean;
+  isDeleted?: boolean;  
+//   createdAt?: string;
+//   updatedAt?: string;
 };
 
 export type ShoppingList = {
@@ -20,6 +23,7 @@ export type ShoppingList = {
   name: string;
   items: ShoppingListRow[];
   shared: boolean;
+  isDeleted?: boolean;
   createdAt?: string;
   updatedAt?: string;
 };
@@ -52,7 +56,12 @@ export async function getLists(): Promise<ShoppingList[]> {
 
 export async function deleteLists(listIds: string[]): Promise<void> {
     const currentUser = await getUser();
-    currentUser.lists = currentUser.lists.filter(list => !listIds.includes(list._id));
+    currentUser.lists = currentUser.lists.map(list => {
+        if (listIds.includes(list._id)) {
+            list.isDeleted = true;
+        }
+        return list;
+    });
     await saveUser(currentUser);
 }
 
@@ -86,6 +95,7 @@ export async function addToList(listId: string, itemName: string): Promise<void>
         item: newItem,
         quantity: 1,
         bought: false,
+        isDeleted: false,
     };
     console.log('Adding new item to list:', newRow);
 
@@ -101,6 +111,22 @@ export async function updateList(updatedList: ShoppingList): Promise<void> {
         console.log('Updated lists:', currentUser.lists);
         await saveUser(currentUser);
     }
+}
+
+export async function deleteFromList(listId: string, itemIds: string[]): Promise<void> {
+    const currentUser = await getUser();
+    const list = currentUser.lists.find(list => list._id === listId);
+    if (!list) {
+        console.error('List not found:', listId);
+        return;
+    }
+    list.items = list.items.map(row => {
+        if (itemIds.includes(row.item._id)) {
+            row.isDeleted = true;
+        }
+        return row;
+    });
+    await saveUser(currentUser);
 }
 
 export async function getList(id: string): Promise<ShoppingList | null> {
@@ -177,6 +203,7 @@ export function mergeListEntries(serverListEntries: ShoppingListRow[], localList
         if (localEntry) {
             localEntry.quantity = Math.max(serverListEntry.quantity, localEntry.quantity);
             localEntry.bought = serverListEntry.bought || localEntry.bought;
+            localEntry.isDeleted = serverListEntry.isDeleted || localEntry.isDeleted;
         } else {
             merged.push(serverListEntry);
         }
