@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { apiClient, clearToken, isTokenExpired, setToken } from "./apiClient";
 import { mergeLists, ShoppingList } from "./lists.utils";
+import uuid from 'react-native-uuid';
 
 export type User = {
   _id: string;
@@ -12,16 +13,6 @@ export type User = {
   lists: ShoppingList[];
 };
 
-// export type FamilyAccount = {
-//   _id: string;
-//   name: string;
-//   token: string;
-//   users: string[];
-//   lists: ShoppingList[];
-//   createdAt?: string;
-//   updatedAt?: string;
-// };
-
 export async function getUser(): Promise<User> {
     
     const user = await AsyncStorage.getItem('currentUser');
@@ -31,18 +22,25 @@ export async function getUser(): Promise<User> {
         return parsedUser;
     }
     console.log('No existing user found, creating a default user.');
-    try{
-        const res = await apiClient.post('/users/DefaultUser');
-        const newUser = res.data.user as User;
-        const token = res.data.token;
-        setToken(token);
-        console.log('Created new user:', newUser.name);
-        await saveUser(newUser);        
-        return newUser;
-    } catch (error) {
-        console.log('Error initializing user:', error);
-        throw error;
-    }
+    const newUser: User = {
+        _id: 'U-' + uuid.v4(),
+        name: 'DefaultUser',
+        email: 'default@example.com',
+        password: 'password',
+        lists: [],
+    };
+    console.log('Created new user:', newUser.name);
+    await saveUser(newUser);
+    // try {
+    //     const res = await apiClient.post('/users', newUser);
+    //     const token = res.data.token;
+    //     setToken(token);
+    // } catch (error) {
+    //     console.log('Error creating user:', error);
+    //     alert('Oops, something went wrong. Please try again.');
+    // }
+
+    return newUser;
 }
 
 export async function saveUser(currentUser: User): Promise<void> {
@@ -57,7 +55,22 @@ export async function saveUser(currentUser: User): Promise<void> {
 export async function syncUser(): Promise<boolean> {
 
     const currentUser = await getUser();
-    
+    if (currentUser.name == 'DefaultUser' && await isTokenExpired()) {        
+        console.log("Default User with no valid token - creating new default user");
+        const newUser = currentUser;
+        try {
+            const res = await apiClient.post('/users', newUser);
+            console.log('Created new user on server:', res.status);
+            const token = res.data.token;
+            setToken(token);
+            return true;
+        } catch (error) {
+            console.log('Error creating user:', error);
+            return false;
+            // alert('Oops, something went wrong. Please try again.');
+        }
+    }
+
     try {
         const res = await apiClient.get(`/users/${currentUser._id}`);
         if (res.status === 200) {
@@ -122,7 +135,7 @@ export async function doRegister(username: string, email: string, password: stri
         console.log('User registered successfully:', registeredUser.name);
     } catch (error) {
         console.log('Error registering user:', error);
-        throw error;
+        alert('Oops, something went wrong. Please try again.');
     }
 }
 
@@ -136,7 +149,7 @@ export async function doLogin(email: string, password: string): Promise<void> {
         console.log('User logged in successfully:', loggedInUser.name);
     } catch (error) {
         console.log('Error logging in user:', error);
-        throw error;
+        alert('Oops, something went wrong. Please try again.');
     }
 }
 
