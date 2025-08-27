@@ -1,7 +1,7 @@
 import AddButton from '@/components/AddButton';
 import Loader from '@/components/Loader';
 import { styles } from '@/styles/styles';
-import { addToList, deleteFromList, getList, type ShoppingList, syncList, updateList } from '@/utils/lists.utils';
+import { addToList, deleteFromList, getList, shareList, type ShoppingList, syncList, updateList } from '@/utils/lists.utils';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, Share, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -109,9 +109,10 @@ export default function ShoppingListScreen() {
 
     async function handleShare() {
         if (!list) return;
-        const sharingLink = `shoppinglist://?share=${list._id}`;
-        console.log('Sharing link:', sharingLink);
-        await Share.share({ message: sharingLink });
+        // const sharingLink = `shoppinglist://?share=${list._id}`;
+        // console.log('Sharing link:', sharingLink);
+        // await Share.share({ message: sharingLink });
+        await shareList(list._id);
     }
 
     return (

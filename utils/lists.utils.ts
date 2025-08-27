@@ -2,6 +2,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { apiClient, clearToken, getToken, setToken } from "./apiClient";
 import { getUser, saveUser, User, } from './users.utils';
 import uuid from 'react-native-uuid';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 
 export type Item = {
   _id: string;
@@ -80,6 +82,7 @@ export async function createShoppingList(listName: string): Promise<void> {
 }
 
 export async function addSharedList(sharedListId: string): Promise<void> {
+    console.log('Adding shared list with id:', sharedListId);
     const currentUser = await getUser();
     const list = currentUser.lists.find(list => list._id === sharedListId);
     if (list) {
@@ -90,14 +93,20 @@ export async function addSharedList(sharedListId: string): Promise<void> {
     try{
         const res = await apiClient.get(`/lists/${sharedListId}`);
         const serverList = res.data as ShoppingList;
+        if (!serverList) {
+            console.error('No shopping list found with id:', sharedListId);
+            alert("Ooops, the shared list was not found at the server.");
+            return;
+        }
         currentUser.lists.push(serverList);
+        console.log('Added shared list:', serverList._id);
+        console.log('Current user has ', currentUser.lists.length,' lists.');
     }catch (error) {
         console.log('Error fetching shared list:', error);
         alert("Ooops, something went wrong while fetching the shared list.");
         return;
     }
-    await saveUser(currentUser);
-            
+    await saveUser(currentUser);            
 }
 
 export async function addToList(listId: string, itemName: string): Promise<void> {
@@ -231,4 +240,36 @@ export function mergeListEntries(serverListEntries: ShoppingListRow[], localList
     });
 
     return merged;
+}
+
+export async function shareList(listId: string): Promise<void> {
+     const htmlContent = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <title>Open Shopping List App</title>
+    </head>
+    <body>
+      <h1>Open Shopping List App</h1>
+      <p>
+        <a href="shoppinglist://?share=${listId}">
+          <h1>Click here to open the shared shopping list in the app</h1>
+        </a>
+      </p>
+      <p>
+        If you have the app installed, tapping the link above will open it directly to the shared list.
+      </p>
+    </body>
+    </html>
+  `;
+
+  const fileUri = FileSystem.cacheDirectory + `shoppinglist-share-${listId}.html`;
+  await FileSystem.writeAsStringAsync(fileUri, htmlContent, { encoding: FileSystem.EncodingType.UTF8 });
+
+  if (await Sharing.isAvailableAsync()) {
+    await Sharing.shareAsync(fileUri, { mimeType: 'text/html' });
+  } else {
+    alert('Sharing is not available on this device');
+  }
 }

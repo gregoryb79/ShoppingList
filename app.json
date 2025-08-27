@@ -16,7 +16,8 @@
         "foregroundImage": "./assets/images/shopping-list.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.gregoryb79.ShoppingList"
     },
     "web": {
       "bundler": "metro",
@@ -39,7 +40,11 @@
       "typedRoutes": true
     },
     "extra": {
-      "API_URL": "https://shoppinglistserver-3hwe.onrender.com"
+      "API_URL": "https://shoppinglistserver-3hwe.onrender.com",
+      "router": {},
+      "eas": {
+        "projectId": "42180e68-ede7-49f4-82cc-6963069b0129"
+      }
     }
   }
 }

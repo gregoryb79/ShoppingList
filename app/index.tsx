@@ -20,7 +20,7 @@ export default function HomeScreen() {
     console.log('Rendering HomeScreen');
 
     const params = useLocalSearchParams();
-    const sharedListId = params.share as string;
+    const sharedListIdFromParams = params.share as string;    
 
     // const [users, setUsers] = useState<User[]>([]);
     const [lists, setLists] = useState<ShoppingList[]>([]);
@@ -28,10 +28,18 @@ export default function HomeScreen() {
     const [listModalVisible, setListModalVisible] = useState(false);
     const [selectedRows, setSelectedRows] = useState<string[]>([]);
     const { connected, setConnected, loggedUser, setLoggedUser } = useAppContext();
+    const [sharedListId, setSharedListId] = useState("");
 
-     useEffect(() => {  
+    if (sharedListIdFromParams && sharedListIdFromParams !== sharedListId) {
+        console.log('New sharedListId from params:', sharedListIdFromParams);
+        setSharedListId(sharedListIdFromParams);
+    }
+
+    useEffect(() => {  
         async function sharedList() {
             await addSharedList(sharedListId);
+            await fetchData();
+            syncIndex();
         }
         if (sharedListId) {
             console.log('Shared list ID found:', sharedListId);
@@ -39,7 +47,7 @@ export default function HomeScreen() {
         }
         fetchData();
         syncIndex();
-    }, [listModalVisible, loggedUser]);
+    }, [listModalVisible, loggedUser, sharedListId]);
 
     function handleRowSelect(rowId: string) {
         setSelectedRows(prevSelectedRows => {
