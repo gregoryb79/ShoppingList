@@ -57,7 +57,7 @@ export async function saveUser(currentUser: User): Promise<void> {
 export async function syncUser(): Promise<boolean> {
 
     const currentUser = await getUser();
-    if (currentUser.name == 'DefaultUser' && await isTokenExpired()) {        
+    if (currentUser.name === 'DefaultUser' && await isTokenExpired()) {        
         console.log("Default User with no valid token - creating new default user at server");
         const newUser = currentUser;
         try {
