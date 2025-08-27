@@ -12,7 +12,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useConnected } from './_layout';
+import { useAppContext } from './_layout';
 
 
 export default function HomeScreen() {
@@ -27,6 +27,7 @@ export default function HomeScreen() {
     const [loading, setLoading] = useState(true);
     const [listModalVisible, setListModalVisible] = useState(false);
     const [selectedRows, setSelectedRows] = useState<string[]>([]);
+    const { connected, setConnected, loggedUser, setLoggedUser } = useAppContext();
 
      useEffect(() => {  
         async function sharedList() {
@@ -38,7 +39,7 @@ export default function HomeScreen() {
         }
         fetchData();
         syncIndex();
-    }, [listModalVisible]);
+    }, [listModalVisible, loggedUser]);
 
     function handleRowSelect(rowId: string) {
         setSelectedRows(prevSelectedRows => {
@@ -69,7 +70,7 @@ export default function HomeScreen() {
         await fetchData();         
     }
 
-    const { setConnected } = useConnected();
+    // const { setConnected } = useConnected();
     function syncIndex() {
         setConnected(false);
         syncUser().then((result) => {
