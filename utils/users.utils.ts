@@ -1,5 +1,7 @@
-import { apiClient, clearToken, getToken, setToken } from "./apiClient";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from 'expo-router';
+import uuid from 'react-native-uuid';
+import { apiClient, clearToken, isTokenExpired, setToken } from "./apiClient";
 import { mergeLists, ShoppingList } from "./lists.utils";
 
 export type User = {
@@ -11,37 +13,36 @@ export type User = {
   lists: ShoppingList[];
 };
 
-// export type FamilyAccount = {
-//   _id: string;
-//   name: string;
-//   token: string;
-//   users: string[];
-//   lists: ShoppingList[];
-//   createdAt?: string;
-//   updatedAt?: string;
-// };
-
 export async function getUser(): Promise<User> {
+    // await AsyncStorage.clear();
     
-    const user = await AsyncStorage.getItem('currentUser');
+    const user = await AsyncStorage.getItem('currentUser');    
     if (user) {
         const parsedUser = JSON.parse(user) as User;
-        console.log('Existing user found:', parsedUser.name);
+        console.log('Existing user found:', parsedUser.name, parsedUser._id);        
         return parsedUser;
     }
     console.log('No existing user found, creating a default user.');
-    try{
-        const res = await apiClient.post('/users/DefaultUser');
-        const newUser = res.data.user as User;
-        const token = res.data.token;
-        setToken(token);
-        console.log('Created new user:', newUser.name);
-        await saveUser(newUser);        
-        return newUser;
-    } catch (error) {
-        console.error('Error initializing user:', error);
-        throw error;
-    }
+    const newUser: User = {
+        _id: 'U-' + uuid.v4(),
+        name: 'DefaultUser',
+        email: (uuid.v4() as string).slice(0, 16) + '@example.com',
+        password: 'password',
+        lists: [],
+    };
+    console.log('Created new user:', newUser.name, newUser._id);
+    await saveUser(newUser);
+    await clearToken();
+    // try {
+    //     const res = await apiClient.post('/users', newUser);
+    //     const token = res.data.token;
+    //     setToken(token);
+    // } catch (error) {
+    //     console.log('Error creating user:', error);
+    //     alert('Oops, something went wrong. Please try again.');
+    // }
+
+    return newUser;
 }
 
 export async function saveUser(currentUser: User): Promise<void> {
@@ -49,14 +50,29 @@ export async function saveUser(currentUser: User): Promise<void> {
         await AsyncStorage.setItem('currentUser', JSON.stringify(currentUser));
         console.log('User saved to storage.');                
     } catch (error) {
-        console.error('Error saving user:', error);
+        console.log('Error saving user:', error);
     }
 }
 
 export async function syncUser(): Promise<boolean> {
 
     const currentUser = await getUser();
-    
+    if (currentUser.name === 'DefaultUser' && await isTokenExpired()) {        
+        console.log("Default User with no valid token - creating new default user at server");
+        const newUser = currentUser;
+        try {
+            const res = await apiClient.post('/users', newUser);
+            console.log('Created new user on server:', res.status);
+            const token = res.data.token;
+            setToken(token);
+            return true;
+        } catch (error) {
+            console.log('Error creating user:', error);
+            return false;
+            // alert('Oops, something went wrong. Please try again.');
+        }
+    }
+
     try {
         const res = await apiClient.get(`/users/${currentUser._id}`);
         if (res.status === 200) {
@@ -67,12 +83,12 @@ export async function syncUser(): Promise<boolean> {
             await saveUser(currentUser);
             console.log('User data synced successfully:', currentUser.name);            
         } else {
-            console.error('Error syncing data from server:', res);
+            console.log('Error syncing data from server:', res);
             return false;
         }
     } catch (error: any) {
         if (error.response) {
-            console.error('Error syncing data from server:', error.response.data);
+            console.log('Error syncing data from server:', error.response.data);
             return false;
         } else if (error.request) {
             console.log('Network error or timeout:', error.message);
@@ -91,12 +107,12 @@ export async function syncUser(): Promise<boolean> {
             console.log('User account synced successfully');
             return true;
         } else {
-            console.error('Error syncing user account to server:', res);
+            console.log('Error syncing user account to server:', res);
             return false;
         }
     } catch (error: any) {
         if (error.response) {
-            console.error('Error syncing data from server:', error.response.data);
+            console.log('Error syncing data from server:', error.response.data);
             return false; 
         } else if (error.request) {
             console.log('Network error or timeout:', error.message);
@@ -108,8 +124,45 @@ export async function syncUser(): Promise<boolean> {
         }
     }
 
-    return false;    
 }
 
+export async function doRegister(username: string, email: string, password: string): Promise<void> {
+    const currentUser = await getUser();
+    try {
+        const res = await apiClient.post('/users/register', { username, email, password, currentUserId: currentUser._id });
+        const registeredUser = res.data.user as User;
+        const token = res.data.token;
+        setToken(token);
+        await saveUser(registeredUser);
+        console.log('User registered successfully:', registeredUser.name);
+    } catch (error) {
+        console.log('Error registering user:', error);
+        alert('Oops, something went wrong. Please try again.');
+    }
+}
 
+export async function doLogin(email: string, password: string): Promise<void> {
+    try {
+        const res = await apiClient.post('/users/login', { email, password });
+        const loggedInUser = res.data.user as User;
+        const token = res.data.token;
+        setToken(token);
+        await saveUser(loggedInUser);
+        console.log('User logged in successfully:', loggedInUser.name);
+    } catch (error) {
+        console.log('Error logging in user:', error);
+        alert('Oops, something went wrong. Please try again.');
+    }
+}
 
+export async function doLogout(): Promise<void> {
+    console.log('Logging out user...');    
+    try {
+        await clearToken();
+        await AsyncStorage.removeItem('currentUser');
+        console.log('User logged out successfully');
+        // router.replace('/');
+    } catch (error) {        
+        console.log('Error logging out user:', error);        
+    }
+}

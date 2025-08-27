@@ -3,23 +3,23 @@ import { colors, typography, spacing, borderRadius } from '../styles/tokens';
 
 
 
-type MainButtonProps = {    
+type SecondaryButtonProps = {    
     onPress: () => void;
     label: string;
     extraStyles?: ViewStyle;
     disabled?: boolean;
 }
-export function MainButton({ onPress, label, extraStyles, disabled }: MainButtonProps) {
-    
+export function SecondaryButton({ onPress, label, extraStyles, disabled }: SecondaryButtonProps) {
+
 return(
-    <TouchableOpacity style={[styles.primaryButton, extraStyles, disabled && { opacity: 0.5 }]} onPress={onPress} disabled={disabled}>
-        <Text style={styles.primaryButtonText}>{label}</Text>
+    <TouchableOpacity style={[styles.secondaryButton, extraStyles, disabled && { opacity: 0.5 }]} onPress={onPress} disabled={disabled}>
+        <Text style={styles.secondaryButtonText}>{label}</Text>
     </TouchableOpacity>
     );
 }
 
 export const styles = StyleSheet.create({    
-    primaryButton: {
+    secondaryButton: {
         backgroundColor: colors.primaryBlue,
         paddingTop: spacing.sm, paddingBottom: spacing.sm,
         paddingLeft: spacing.md, paddingRight: spacing.md,
@@ -28,9 +28,9 @@ export const styles = StyleSheet.create({
         alignSelf: 'center',
         // marginBottom: spacing.md,
     },
-    primaryButtonText: {
+    secondaryButtonText: {
         color: colors.textWhite,
-        fontSize: typography.xl,
+        fontSize: typography.lg,
         fontWeight: typography.weights.semibold,
     },
 });
