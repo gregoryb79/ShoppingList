@@ -12,7 +12,7 @@ import DeleteButton from '@/components/DeleteButton';
 import EditButton from '@/components/EditButton';
 import ShareButton from '@/components/ShareButton';
 import { colors } from '@/styles/tokens';
-import { useConnected } from './_layout';
+import { useAppContext,  } from './_layout';
 import { MainButton } from '@/components/MainButton';
 import { SecondaryButton } from '@/components/SecondaryButton';
 
@@ -30,7 +30,8 @@ export default function ShoppingListScreen() {
         fetchData();
     }, []);
 
-    const { setConnected } = useConnected();
+    const { connected, setConnected, loggedUser, setLoggedUser } = useAppContext();
+    
     async function handleAddItem() {
         if (!textInput.trim() || !list) return;
         console.log('Adding new item:', textInput);     

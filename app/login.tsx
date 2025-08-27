@@ -2,18 +2,20 @@ import Loader from '@/components/Loader';
 import { MainButton } from '@/components/MainButton';
 import { styles } from '@/styles/styles';
 import { spacing } from '@/styles/tokens';
-import { addToList, deleteFromList, getList, type ShoppingList, syncList, updateList } from '@/utils/lists.utils';
 import { doLogin } from '@/utils/users.utils';
-import { Link, router, useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { ScrollView, Share, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Link, router } from 'expo-router';
+import React, { useState } from 'react';
+import { Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAppContext } from './_layout';
 
 export default function LoginScreen() {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const { connected, setConnected, loggedUser, setLoggedUser } = useAppContext();
+    
 
     const handleLogin = async () => {
         if (!email.trim() || !password.trim()) {
@@ -31,6 +33,7 @@ export default function LoginScreen() {
             await doLogin(email, password);
             console.log('Login successful, navigating to main screen...');
             router.replace('/');
+            setLoggedUser(prev => !prev);
         } catch (error) {
             console.log('Login failed:', error);
         } finally {

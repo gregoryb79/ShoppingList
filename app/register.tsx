@@ -7,12 +7,15 @@ import { Link, router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, Share, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAppContext } from './_layout';
 
 export default function LoginScreen() {
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const { connected, setConnected, loggedUser, setLoggedUser } = useAppContext();
+    
 
     async function handleRegister() {
         if (!email.trim() || !username.trim() || !password.trim()) {
@@ -34,6 +37,7 @@ export default function LoginScreen() {
             await doRegister(username, email, password);
             console.log('Registration successful, navigating to main screen...');
             router.replace('/');
+            setLoggedUser(prev => !prev);
         } catch (error) {
             console.log('Registration failed:', error);
         } finally {
