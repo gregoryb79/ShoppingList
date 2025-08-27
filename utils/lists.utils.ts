@@ -87,6 +87,11 @@ export async function addSharedList(sharedListId: string): Promise<void> {
     const list = currentUser.lists.find(list => list._id === sharedListId);
     if (list) {
         console.log('Shared list already exists:', list._id);
+        if (list.isDeleted) {
+            console.log('Restoring deleted shared list:', list._id);
+            list.isDeleted = false;
+            await saveUser(currentUser);
+        }
         return;
     }
     
@@ -251,10 +256,12 @@ export async function shareList(listId: string): Promise<void> {
       <title>Open Shopping List App</title>
     </head>
     <body>
-      <h1>Open Shopping List App</h1>
+      <h1>ShoppingList App shared list</h1>
       <p>
         <a href="shoppinglist://?share=${listId}">
-          <h1>Click here to open the shared shopping list in the app</h1>
+            <button>
+                <h1>Open Shared List</h1>
+            </button>
         </a>
       </p>
       <p>
