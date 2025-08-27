@@ -79,6 +79,27 @@ export async function createShoppingList(listName: string): Promise<void> {
            
 }
 
+export async function addSharedList(sharedListId: string): Promise<void> {
+    const currentUser = await getUser();
+    const list = currentUser.lists.find(list => list._id === sharedListId);
+    if (list) {
+        console.log('Shared list already exists:', list._id);
+        return;
+    }
+    
+    try{
+        const res = await apiClient.get(`/lists/${sharedListId}`);
+        const serverList = res.data as ShoppingList;
+        currentUser.lists.push(serverList);
+    }catch (error) {
+        console.log('Error fetching shared list:', error);
+        alert("Ooops, something went wrong while fetching the shared list.");
+        return;
+    }
+    await saveUser(currentUser);
+            
+}
+
 export async function addToList(listId: string, itemName: string): Promise<void> {
     const currentUser = await getUser();
     const list = currentUser.lists.find(list => list._id === listId);
@@ -185,7 +206,7 @@ export function mergeLists(serverLists: ShoppingList[], localLists: ShoppingList
         const localList = merged.find(list => list._id === serverList._id);
         if (localList) {
             // Merge items if the list exists locally
-            localList.items = mergeListEntries(serverList.items, localList.items);
+            localList.items = mergeListEntries(serverList.items, localList.items);            
         } else {
             // If the list doesn't exist locally, add it
             merged.push(serverList);

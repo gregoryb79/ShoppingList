@@ -1,8 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
+import uuid from 'react-native-uuid';
 import { apiClient, clearToken, isTokenExpired, setToken } from "./apiClient";
 import { mergeLists, ShoppingList } from "./lists.utils";
-import uuid from 'react-native-uuid';
 
 export type User = {
   _id: string;
@@ -14,23 +14,25 @@ export type User = {
 };
 
 export async function getUser(): Promise<User> {
+    // await AsyncStorage.clear();
     
-    const user = await AsyncStorage.getItem('currentUser');
+    const user = await AsyncStorage.getItem('currentUser');    
     if (user) {
         const parsedUser = JSON.parse(user) as User;
-        console.log('Existing user found:', parsedUser.name);        
+        console.log('Existing user found:', parsedUser.name, parsedUser._id);        
         return parsedUser;
     }
     console.log('No existing user found, creating a default user.');
     const newUser: User = {
         _id: 'U-' + uuid.v4(),
         name: 'DefaultUser',
-        email: 'default@example.com',
+        email: (uuid.v4() as string).slice(0, 16) + '@example.com',
         password: 'password',
         lists: [],
     };
-    console.log('Created new user:', newUser.name);
+    console.log('Created new user:', newUser.name, newUser._id);
     await saveUser(newUser);
+    await clearToken();
     // try {
     //     const res = await apiClient.post('/users', newUser);
     //     const token = res.data.token;
@@ -56,7 +58,7 @@ export async function syncUser(): Promise<boolean> {
 
     const currentUser = await getUser();
     if (currentUser.name == 'DefaultUser' && await isTokenExpired()) {        
-        console.log("Default User with no valid token - creating new default user");
+        console.log("Default User with no valid token - creating new default user at server");
         const newUser = currentUser;
         try {
             const res = await apiClient.post('/users', newUser);
@@ -154,11 +156,12 @@ export async function doLogin(email: string, password: string): Promise<void> {
 }
 
 export async function doLogout(): Promise<void> {
-    clearToken();
+    console.log('Logging out user...');    
     try {
+        await clearToken();
         await AsyncStorage.removeItem('currentUser');
         console.log('User logged out successfully');
-        router.replace('/');
+        // router.replace('/');
     } catch (error) {        
         console.log('Error logging out user:', error);        
     }

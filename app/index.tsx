@@ -6,17 +6,21 @@ import ShoppingListModal from '@/components/ShoppingListModal';
 import { styles } from '@/styles/styles';
 import { colors } from '@/styles/tokens';
 import { isTokenExpired, verifyToken } from '@/utils/apiClient';
-import { deleteLists, getLists, ShoppingList } from '@/utils/lists.utils';
+import { addSharedList, deleteLists, getLists, ShoppingList } from '@/utils/lists.utils';
 import { syncUser } from '@/utils/users.utils';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useConnected } from './_layout';
 
 
 export default function HomeScreen() {
     
     console.log('Rendering HomeScreen');
+
+    const params = useLocalSearchParams();
+    const sharedListId = params.share as string;
 
     // const [users, setUsers] = useState<User[]>([]);
     const [lists, setLists] = useState<ShoppingList[]>([]);
@@ -24,8 +28,16 @@ export default function HomeScreen() {
     const [listModalVisible, setListModalVisible] = useState(false);
     const [selectedRows, setSelectedRows] = useState<string[]>([]);
 
-     useEffect(() => {        
+     useEffect(() => {  
+        async function sharedList() {
+            await addSharedList(sharedListId);
+        }
+        if (sharedListId) {
+            console.log('Shared list ID found:', sharedListId);
+            sharedList();
+        }
         fetchData();
+        syncIndex();
     }, [listModalVisible]);
 
     function handleRowSelect(rowId: string) {
@@ -57,6 +69,20 @@ export default function HomeScreen() {
         await fetchData();         
     }
 
+    const { setConnected } = useConnected();
+    function syncIndex() {
+        setConnected(false);
+        syncUser().then((result) => {
+            if (result === true) {
+                console.log('User data synced successfully, setting connected to true');
+                setConnected(true);
+            } else {
+                console.log('Sync failed or returned false, setting connected to false');
+                setConnected(false);
+            }
+        });
+    }
+
     return (
         <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
           <View style={styles.mainScreenContainer}>
@@ -78,7 +104,8 @@ export default function HomeScreen() {
             </ScrollView>
             <ShoppingListModal visible={listModalVisible} onClose={() => setListModalVisible(false)} onConfirm={(name) => {}} />
             <View style={styles.addButtonContainer}>
-                <EditButton onPress={() => {}} disabled={selectedRows.length !== 1} />
+                {/* <EditButton onPress={() => {}} disabled={selectedRows.length !== 1} /> */}
+                <EditButton onPress={() => {}} disabled={true} />
                 <AddButton onPress={() => setListModalVisible(true)} />
                 <DeleteButton onPress={deleteSelectedRows} disabled={selectedRows.length === 0}/>
             </View>  

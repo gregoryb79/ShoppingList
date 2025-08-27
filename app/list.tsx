@@ -13,10 +13,13 @@ import EditButton from '@/components/EditButton';
 import ShareButton from '@/components/ShareButton';
 import { colors } from '@/styles/tokens';
 import { useConnected } from './_layout';
+import { MainButton } from '@/components/MainButton';
+import { SecondaryButton } from '@/components/SecondaryButton';
 
 export default function ShoppingListScreen() { 
     const params = useLocalSearchParams();
-    const listId = params.id as string;
+    const listId = params.id as string;    
+
     console.log('ShoppingList id:', listId);
     const [loading,setLoading] = useState(true);
     const [list, setList] = useState<ShoppingList | null>(null);
@@ -39,7 +42,7 @@ export default function ShoppingListScreen() {
     }
 
     async function fetchData() {
-            try {
+            try {                
                 const data = await getList(listId);
                 if (!data) {
                     console.error('No shopping list found with id:', listId);
@@ -105,7 +108,7 @@ export default function ShoppingListScreen() {
 
     async function handleShare() {
         if (!list) return;
-        const sharingLink = `shoppinglist://list?id=${list._id}`;
+        const sharingLink = `shoppinglist://?share=${list._id}`;
         console.log('Sharing link:', sharingLink);
         await Share.share({ message: sharingLink });
     }
@@ -116,12 +119,13 @@ export default function ShoppingListScreen() {
             {loading && <Loader />}
             <Text style={styles.h3}>Shopping List: {list ? list.name : 'Loading...'}</Text>
             <View style={styles.quickEntryContainer}>
-                <Text style={styles.h4}>Quick Entry:</Text>
+                {/* <Text style={styles.h4}>Quick Entry:</Text> */}
                 <TextInput style={styles.quickInput} placeholder={"enter item..."}
                     value={textInput}
                     onChangeText={setTextInput}
                     onSubmitEditing={handleAddItem}
-                />                
+                />        
+                <SecondaryButton label={"Add"}  onPress={handleAddItem} />        
             </View>
             <ScrollView style={styles.shoppingListsContainer}>
               { !list ? (
@@ -141,8 +145,9 @@ export default function ShoppingListScreen() {
               )))}
             </ScrollView>
             <View style={styles.addButtonContainer}>
-                <EditButton onPress={() => {}} disabled={selectedRows.length !== 1} />
-                <AddButton onPress={() => {}} />
+                {/* <EditButton onPress={() => {}} disabled={selectedRows.length !== 1} /> */}
+                <EditButton onPress={() => {}} disabled={true} />
+                {/* <AddButton onPress={() => {}} /> */}
                 <ShareButton onPress={handleShare} />
                 <DeleteButton onPress={deleteSelectedRows} disabled={selectedRows.length === 0}/>
                 

@@ -31,6 +31,7 @@ export default function ShoppingListModal({visible, onClose, onConfirm, confirmB
         if (!title) {
             console.log('Creating shopping list:', textInput, 'Private:', isChecked);
             await createShoppingList(textInput);
+            setTextInput("");
             onClose();
         } else {
             // await updateShoppingList(textInput, isChecked);
@@ -53,6 +54,7 @@ export default function ShoppingListModal({visible, onClose, onConfirm, confirmB
                         <TextInput style={styles.input} placeholder={placeholder || "List name"}
                             value={textInput}
                             onChangeText={setTextInput}
+                            onSubmitEditing={handleConfirm}
                          />
                          {/* <View style={styles.checkboxContainer}>
                              <CheckBox checked={isChecked} onChange={setIsChecked} size={iconSizes.sm} checkedColor={colors.primary} />

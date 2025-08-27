@@ -4,13 +4,17 @@ import { isTokenExpired, verifyToken } from '@/utils/apiClient';
 import { colors, iconSizes, typography } from '../styles/tokens';
 
 import HamburgerButton from '@/components/LoginButton';
-import { getUser, syncUser } from '@/utils/users.utils';
+import { getUser, syncUser, doLogout } from '@/utils/users.utils';
 import { ActivityIndicator, Text, View } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import LoginButton from '@/components/LoginButton';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import LogOutButton from '@/components/LogOutButton';
 
 const SYNC_INTERVAL_CONNECTED = 300000; // 5 minutes in ms
 const SYNC_INTERVAL_DISCONNECTED = 30000; // 30 seconds in ms
+
+
 
 export const ConnectedContext = createContext<{ connected: boolean; setConnected: (v: boolean) => void }>({
   connected: false,
@@ -19,14 +23,16 @@ export const ConnectedContext = createContext<{ connected: boolean; setConnected
 export const useConnected = () => useContext(ConnectedContext);
 
 export default function RootLayout() {
+    
     console.log('Rendering RootLayout');
     const [loading, setLoading] = useState(true);
     const [connected, setConnected] = useState(false);
     const [username, setUsername] = useState("");
-    
+    const [status, setStatus] = useState("");
 
     useEffect(() => {     
         async function initializeApp (){
+            // await AsyncStorage.clear();
             setLoading(true);            
             try {                
                 const user = await getUser();                
@@ -64,15 +70,27 @@ export default function RootLayout() {
             syncUser().then((result) => {
                 if (result === true) {
                     console.log('User data synced successfully, setting connected to true');
+                    if (status === "Logging out"){
+                        router.replace('/');
+                    }                    
                     setConnected(true);
                 } else {
                     console.log('Sync failed or returned false, setting connected to false');
+                    if (status === "Logging out"){
+                        router.replace('/');
+                    } 
                     setConnected(false);
                 }
             });
         } catch (error) {
             console.error('Error during app initialization:', error);
         } 
+    }
+
+    async function logOut() {
+        setStatus("Logging out");
+        await doLogout();
+        syncUserData();
     }
 
     if (loading) {
@@ -92,7 +110,8 @@ export default function RootLayout() {
                     title: 'Shopping List',
                     headerRight: () => (<>
                         {!connected && <Icon name="cloud-off" size={iconSizes.md} color={colors.textSecondary}/>}
-                        <LoginButton onPress={() => {router.push('/login')}} disabled={username != "DefaultUser"}/>                    
+                        {username === "DefaultUser" && <LoginButton onPress={() => {router.push('/login')}} disabled={false}/>}
+                        {username !== "DefaultUser" && <LogOutButton onPress={logOut} disabled={false}/>}                    
                     </>)
                 }}/>
                 <Stack.Screen name="list" options={{ 
@@ -100,7 +119,8 @@ export default function RootLayout() {
                     title: 'Shopping List',
                     headerRight: () => (<>
                         {!connected && <Icon name="cloud-off" size={iconSizes.md} color={colors.textSecondary}/>}
-                        <LoginButton onPress={() => {router.push('/login')}} disabled={username != "DefaultUser"}/>                    
+                        {username === "DefaultUser" && <LoginButton onPress={() => {router.push('/login')}} disabled={false}/>}
+                        {username !== "DefaultUser" && <LogOutButton onPress={logOut} disabled={false}/>}
                     </>)
                 }}/>
                 <Stack.Screen name="login" options={{ 
@@ -116,11 +136,7 @@ export default function RootLayout() {
                     headerRight: () => (<>
                         {!connected && <Icon name="cloud-off" size={iconSizes.md} color={colors.textSecondary}/>}                        
                     </>)
-                }}/>
-                {/* <Stack.Screen name="index" options={{ title: 'TravelExpences ', headerRight: () => <SettingsButton onPress={() => {router.push('/settings')}}/>}} />
-                <Stack.Screen name="expenses" options={{ title: 'Expenses', headerRight: () => <SettingsButton onPress={() => {router.push('/settings')}}/> }} />                        
-                <Stack.Screen name="settings" options={{ title: 'Settings'}} /> 
-                <Stack.Screen name="currencies_config" options={{ title: 'Currencies', headerRight: () => <SettingsButton onPress={() => {router.push('/settings')}}/> }} />                   */}
+                }}/>               
             </Stack>
         </ConnectedContext.Provider>
     );
