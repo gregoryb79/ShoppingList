@@ -106,7 +106,7 @@ export default function HomeScreen() {
                         onPress={() => router.push(`/list?id=${list._id}` as any)} 
                         onLongPress={() => handleRowSelect(list._id)}>
                           <Text style={styles.text_md}>{list.name}</Text>
-                          <Text style={styles.text_md}>{list.items.filter(item => !item.isDeleted).length === 0 ? 'Empty' : `${list.items.filter(item => !item.isDeleted).length} items`}</Text>
+                          <Text style={styles.text_md}>{list.items.filter(item => !item.isDeleted).length === 0 ? 'Empty' : `${list.items.filter(item => !item.isDeleted && !item.bought).length} ${list.items.filter(item => !item.isDeleted && !item.bought).length === 1 ? 'item' : 'items'}`}</Text>
                       </TouchableOpacity>
                     
               )))}

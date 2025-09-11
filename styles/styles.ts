@@ -33,6 +33,11 @@ export const styles = StyleSheet.create({
         fontSize: typography.md,
         color: colors.textPrimary,
     },
+    text_md_bought: {
+        fontSize: typography.md,
+        color: colors.textSecondary,
+        textDecorationLine: 'line-through',
+    },
     text_sm: {
         fontSize: typography.sm,
         color: colors.textPrimary,

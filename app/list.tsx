@@ -138,7 +138,7 @@ export default function ShoppingListScreen() {
                         style={[styles.shoppingListsRow, { backgroundColor: selectedRows.includes(row.item._id) ? colors.primaryLight : 'transparent' }]} 
                         onLongPress={() => {handleRowSelect(row.item._id)}}>
                         <View>
-                          <Text style={styles.text_md}>{row.item.name}</Text>
+                          <Text style={[styles.text_md, row.bought && styles.text_md_bought]}>{row.item.name}</Text>
                           {row.quantity > 1 && <Text style={styles.text_sm}>{row.quantity} pcs</Text>}
                         </View>
                           <CheckBox checked={row.bought} size={24} checkedColor={colors.primary} onChange={() => {handleToggleBought(row.item._id)}} />
